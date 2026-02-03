@@ -24,7 +24,7 @@ export default function Login() {
     }
 
     alert("Login successful!");
-    console.log("Session:", data.session);
+    console.log("Session:", data);
     navigate('/dashboard');
     // Navigate to dashboard if needed
     // window.location.href = "/dashboard";
