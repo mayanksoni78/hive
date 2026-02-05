@@ -11,7 +11,7 @@ import ComplainDashboard from "./components/ComplainDashboard.jsx"
 import MessMenuDisplay from "./components/mess/MessMenuDisplay.jsx"; 
 import MessMenuAdmin from './components/mess/MessMenuAdmin';
 import TransportSchedule from './Pages/Transport_Schedule.jsx'
-
+import AddTransport from './components/tranaport/AddBus.jsx'
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
         <Route path="/complain_page" element={<ComplainPage/>}/>
         <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
+         <Route path="/add_transport" element={<AddTransport/>}/>
         {/* Protected route */}
         <Route
           path="/dashboard"
