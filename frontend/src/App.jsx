@@ -7,7 +7,12 @@ import LoginHostel from "./components/hostel/login.jsx";
 import HostelRegistration from "./components/hostel/registration.jsx";
 import HostelDashboard from "./components/hostel/hostel.jsx";
 import ComplainPage from "./Pages/ComplainPage.jsx";
+import ComplainDashboard from "./components/ComplainDashboard.jsx"
 import MessMenuDisplay from "./components/mess/MessMenuDisplay.jsx"; 
+import MessMenuAdmin from './components/mess/MessMenuAdmin';
+import TransportSchedule from './Pages/Transport_Schedule.jsx'
+import AddTransport from './components/tranaport/AddBus.jsx'
+
 function App() {
   return (
     <Router>
@@ -20,6 +25,11 @@ function App() {
         <Route path='signup/hostel' element={<HostelRegistration/>}/>
         <Route path='dashboard-hostel' element={<HostelDashboard/>}/>
         <Route path="/mess-menu" element={<MessMenuDisplay />} />
+        <Route path="/admin/mess-menu" element={<MessMenuAdmin />} />
+        <Route path="/complain_page" element={<ComplainPage/>}/>
+        <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
+        <Route path="/transport_schedule" element={<TransportSchedule/>}/>
+         <Route path="/add_transport" element={<AddTransport/>}/>
         {/* Protected route */}
         <Route
           path="/dashboard"
@@ -29,7 +39,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-          <Route path="/complain_page" element={<ComplainPage/>}/>
+          
         {/* Default */}
         <Route path="*" element={<Navigate to="/login" />} />
 

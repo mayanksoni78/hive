@@ -62,7 +62,7 @@ export default function MessMenuDisplay() {
     
     if (!menu) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+            <div className="min-h-screen bg-grey-50 flex items-center justify-center p-6">
                 <div className="max-w-md w-full bg-yellow-50 border-2 border-yellow-300 rounded-lg p-8 text-center shadow-lg">
                     <span className="text-6xl mb-4 block">🍽️</span>
                     <h3 className="text-2xl font-bold text-yellow-900 mb-2">
@@ -80,10 +80,10 @@ export default function MessMenuDisplay() {
     }
     
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="min-h-screen bg-yellow-50 py-8 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-red-100 rounded-lg shadow-md p-6 mb-6">
                     <h1 className="text-4xl font-bold mb-2 text-gray-800">🍽️ Mess Menu</h1>
                     <p className="text-xl text-gray-600">{formatDate(selectedDate)}</p>
                 </div>
@@ -134,7 +134,7 @@ export default function MessMenuDisplay() {
                 )}
                 
                 {/* Footer */}
-                <div className="bg-white rounded-lg shadow-md p-4 text-center">
+                <div className="bg-red-50 rounded-lg shadow-md p-4 text-center">
                     <p className="text-sm text-gray-600">
                         Last updated: {new Date(menu.updated_at).toLocaleString('en-IN')}
                     </p>
