@@ -47,8 +47,8 @@ function LoginHostel() {
     }, 1500);
      const data1 = await res.json();
     console.log(data1)
-  // ⭐ ADD HERE
-    navigate('dashboard-hostel')
+  
+    navigate('./dashboard-hostel')
   };
 
   return (

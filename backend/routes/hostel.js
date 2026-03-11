@@ -9,11 +9,11 @@ import hostelData from "../controllers/hostelData.js";
 const hostelRouter = Router();
 hostelRouter.post("/login", async (req, res) => {
   const { Hostel_Name, password } = req.body;
-  console.log("clicked")
+  // console.log("clicked")
   const { data: user } = await supabase
     .from("Hostel")
     .select("*")
-    .eq("Hostel Domain", Hostel_Name)
+    .eq("hostel_id", Hostel_Name)
     .single();
   console.log(user);
   if (!user) return res.status(401).json({ error: "User not found" });
@@ -28,8 +28,14 @@ hostelRouter.post("/login", async (req, res) => {
     process.env.VITE_SUPABASE_JWT_KEY,
     { expiresIn: "7d" }
   );
-  console.log(token)
-  res.json({ token });
+  // console.log(token)
+  res.cookie("token",token,{
+        httpOnly: true,       
+        secure: false,       
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+  res.json({mssg:"success"}).status(200);
 
 })
 
@@ -44,11 +50,11 @@ hostelRouter.post("/signup", async (req, res) => {
     const { data, error } = await supabase
       .from('Hostel')
       .insert([
-        { "Hostel Name": Hostel_Name, "Owner Name": Owner_Name, "Owner Number": Owner_Number, "Manager": Manager_Name, "Manager Number": Manager_Contact, "Address": Address, "Hostel Domain": domain, "Password": Password },
+        { "hostel_id": domain,  "hostel_name": Hostel_Name, "total_rooms": 10, "location": Address, "Owner_Name":Owner_Name, "Manager_Name":Manager_Name, "Owner_Number":Owner_Number, "Manager_Contact":Manager_Contact, "Password":Password},
       ])
       .select("*")
-
-    res.status(200).send(data).redirect(true);
+      console.log(data,error)
+    res.status(200).send(data);
   } catch (e) {
     // console.log(e)
     res.status(409).send("Something wrong in fetching");
