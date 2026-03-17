@@ -83,7 +83,6 @@ export async function upsertMenu(menuData) {
   if (error) throw error;
   return data[0];
 }
-
 export async function deleteMenu(date) {
   const { error } = await supabase
     .from('mess_menu')
@@ -108,4 +107,28 @@ export function subscribeToMenuUpdates(callback) {
     })
     .subscribe();
   return subscription;
+}
+
+export async function getNotices(hostel_id) {
+    const { data, error } = await supabase
+        .from('notice')
+        .select('*')
+        .order('date', { ascending: false });
+    
+    console.log('Notices data:', data);
+    console.log('Notices error:', error);
+    
+    if (error) throw error;
+    return data || [];
+}
+export function subscribeToNotices(hostel_id, callback) {
+    return supabase
+        .channel('notice_changes')
+        .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'notice',
+            filter: `hostel_id=eq.${hostel_id}`
+        }, callback)
+        .subscribe();
 }
