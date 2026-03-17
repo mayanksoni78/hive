@@ -18,7 +18,6 @@ function App() {
     <Router>
       <Routes>
 
-        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path='login/hostel' element={<LoginHostel/>}/>
@@ -30,7 +29,6 @@ function App() {
         <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
          <Route path="/add_transport" element={<AddTransport/>}/>
-        {/* Protected route */}
         <Route
           path="/dashboard"
           element={
@@ -38,9 +36,7 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           }
-        />
-          
-        {/* Default */}
+        />        
         <Route path="*" element={<Navigate to="/login" />} />
 
       </Routes>

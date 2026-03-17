@@ -2,13 +2,13 @@ import {supabase} from "../supabase.js"
 
 export const addBus=async(req,res)=>{
     try{
-         const {route,date,day,time_range,student_count,batch,bus_count}= req.body;
-        if(!route|| !date || !day|| !time_range||!student_count ||!batch ||!bus_count)
+         const { hostel_id,transport_id,pickup,destination,date,day,start_time,end_time,student_count,batch,bus_count}= req.body;
+        if(!hostel_id || !transport_id || !pickup || !destination|| !date || !start_time|| !end_time|| !day|| !student_count ||!batch ||!bus_count)
         {
             return res.json({error:"Missing required fields"})
         }
         const {data,error}=await supabase.from('transport_schedule').insert([{
-           route,date,day,time_range,student_count,batch,bus_count}
+           pickup,destination,day,date,start_time,end_time,student_count,batch,bus_count}
         ]).select();
 
         if(error)throw error;
@@ -21,3 +21,8 @@ export const addBus=async(req,res)=>{
     res.json({ error: error.message })
     }
 }
+
+          
+        
+          
+          
