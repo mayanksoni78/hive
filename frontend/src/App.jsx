@@ -18,7 +18,6 @@ function App() {
     <Router>
       <Routes>
 
-        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path='login/hostel' element={<LoginHostel/>}/>
@@ -39,9 +38,7 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           }
-        />
-          
-        {/* Default */}
+        />        
         <Route path="*" element={<Navigate to="/login" />} />
 
       </Routes>
