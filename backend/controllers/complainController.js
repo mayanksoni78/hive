@@ -1,4 +1,7 @@
-import {supabase} from "../supabase.js"
+import { getSupabase } from "../config.js";
+
+const supabase = getSupabase();
+
 
 const createComplain=async(req,res)=>{
     try{

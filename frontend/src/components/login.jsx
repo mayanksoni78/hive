@@ -1,33 +1,49 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
+
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [hostelDomain, setHostelDomain] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // Query the user table directly (not using Supabase Auth)
+      const { data, error } = await supabase
+        .from("User")
+        .select("*")
+        .eq("roll no", parseInt(rollNo))
+        .eq("hostel-domain", hostelDomain)
+        .eq("password", password)
+        .single();
 
-    setLoading(false);
+      setLoading(false);
 
-    if (error) {
-      alert(error.message);
-      return;
+      if (error || !data) {
+        alert("Invalid credentials. Please check your roll number, hostel, and password.");
+        console.error("Login error:", error);
+        return;
+      }
+
+      // Store user data in localStorage or session
+      localStorage.setItem("user", JSON.stringify(data));
+      
+      alert(`Welcome back, ${data.name}!`);
+      console.log("Logged in user:", data);
+      navigate("/dashboard");
+      
+    } catch (err) {
+      setLoading(false);
+      alert("An error occurred during login. Please try again.");
+      console.error("Login error:", err);
     }
-
-    alert("Login successful!");
-    console.log("Session:", data);
-    navigate('/dashboard');
-    // Navigate to dashboard if needed
-    // window.location.href = "/dashboard";
   };
 
   return (
@@ -47,31 +63,56 @@ export default function Login() {
           </div>
           
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Welcome Back</h2>
-            <p className="text-gray-500 text-center mb-8">Sign in to your account</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Student Login</h2>
+            <p className="text-gray-500 text-center mb-8">Sign in with your credentials</p>
             
-            <div className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-6">
+              {/* Roll Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  Roll Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
                     </svg>
                   </div>
                   <input
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
+                    type="number"
+                    placeholder=""
+                    value={rollNo}
                     required
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setRollNo(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                 </div>
               </div>
 
+              {/* Hostel Domain */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Hostel Domain
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder=""
+                    value={hostelDomain}
+                    required
+                    onChange={(e) => setHostelDomain(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">Include the @ symbol (e.g., @GR5)</p>
+              </div>
+
+              {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
@@ -88,7 +129,6 @@ export default function Login() {
                     value={password}
                     required
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleLogin(e)}
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                   <button
@@ -121,7 +161,7 @@ export default function Login() {
               </div>
 
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
               >
@@ -135,15 +175,9 @@ export default function Login() {
                   </span>
                 ) : "Sign In"}
               </button>
-            </div>
+            </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <a href="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
-                  Sign up
-                </a>
-              </p>
+            <div className="mt-8 text-center space-y-2">
               <p className="text-gray-600">
                 Login as Hostel?{" "}
                 <a href="/login/hostel" className="text-blue-600 hover:text-blue-700 font-semibold">
