@@ -12,7 +12,7 @@ import MessMenuDisplay from "./components/mess/MessMenuDisplay.jsx";
 import MessMenuAdmin from './components/mess/MessMenuAdmin';
 import TransportSchedule from './Pages/Transport_Schedule.jsx'
 import AddTransport from './components/tranaport/AddBus.jsx'
-
+import NoticePage from './components/notice/NoticePage';
 function App() {
   return (
     <Router>
@@ -29,6 +29,8 @@ function App() {
         <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
          <Route path="/add_transport" element={<AddTransport/>}/>
+         <Route path="/notices" element={<NoticePage />} />
+        {/* Protected route */}
         <Route
           path="/dashboard"
           element={

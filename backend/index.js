@@ -8,9 +8,12 @@ import transportRouter from "./routes/transport.js";
 
 const PORT =process.env.PORT||3000;
 const app= express()
+dotenv.config();
 
-
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 
 app.use(express.json());
 app.use("/api/complain",complainrouter)
@@ -19,6 +22,8 @@ app.use("/api/transport",transportRouter)
 app.get("/",(req,res)=>{
     res.send("Hello from the server")
 })
+
+
 app.listen(PORT,()=>{
     console.log("server started at 3000")
 })

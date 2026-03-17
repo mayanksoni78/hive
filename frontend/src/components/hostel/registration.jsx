@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Building2, User, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Building2, User, Phone, MapPin, CheckCircle2, ArrowRight, Lock } from 'lucide-react';
+import { HashRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
-function HostelRegistration() {
+function RegistrationForm() {
   const [formData, setFormData] = useState({
     hostelName: '',
+    password: '',
     address: '',
     ownerName: '',
     ownerContact: '',
     managerName: '',
     managerContact: '',
   });
-
+  
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -21,37 +24,42 @@ function HostelRegistration() {
       [name]: value,
     }));
   };
-  const registerHostel = async (e) => {
-    console.log(e);
-  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // console.log(e);
-    // Simulate API call
-    const Hostel_Name = document.getElementById("hostelName").value
-    const Owner_Name = document.getElementById("ownerName").value
-    const Owner_Number = document.getElementById("ownerContact").value
-    const Manager_Name = document.getElementById("managerName").value
-    const Manager_Contact = document.getElementById("managerContact").value
-    const Address = document.getElementById("address").value
 
-    const data = { "Hostel_Name": Hostel_Name, "Owner_Name": Owner_Name, "Owner_Number": Owner_Number, "Manager_Name": Manager_Name, "Manager_Contact": Manager_Contact, "Address": Address }
-    console.log(data)
-    const res = await fetch("https://hive-delta-seven.vercel.app/api/hostel", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8"
-      },
-      body: JSON.stringify(data)
-    })
-    // const dt=await res.json();
-    console.log(res);
+    const data = { 
+        "Hostel_Name": formData.hostelName, 
+        "Password": formData.password,
+        "Owner_Name": formData.ownerName, 
+        "Owner_Number": formData.ownerContact, 
+        "Manager_Name": formData.managerName, 
+        "Manager_Contact": formData.managerContact, 
+        "Address": formData.address 
+    };
+    
+    console.log("Submitting data:", data);
+    
+    try {
+        const res = await fetch("https://hive-delta-seven.vercel.app/api/hostel/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(data)
+        });
+        
+    } catch (error) {
+        console.error("Submission error:", error);
+    }
+      
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
-      // Reset after showing success
       setTimeout(() => setSubmitted(false), 3000);
+      // Navigate to dashboard
+      navigate("/dashboard-hostel");
     }, 1500);
   };
 
@@ -100,6 +108,27 @@ function HostelRegistration() {
                       value={formData.hostelName}
                       onChange={handleChange}
                       placeholder="e.g. Sunrise Student Living"
+                      className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Enter a secure password"
                       className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
                     />
                   </div>
@@ -260,4 +289,10 @@ function HostelRegistration() {
   );
 }
 
-export default HostelRegistration;
+
+export default function App() {
+  return (
+        <RegistrationForm />
+     
+  );
+}
