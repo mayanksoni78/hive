@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Building2, Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 function LoginHostel() {
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,16 +21,34 @@ function LoginHostel() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     // Simulate API call
+    const Hostel_Name=document.getElementById("email").value
+    const password=document.getElementById("password").value
+    const data = {
+  Hostel_Name: formData.email,
+  password: formData.password
+};
+    const res = await fetch("http://localhost:3000/api/hostel/login", {
+      method: "POST",
+      credentials:"include",
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8"
+      },
+      body: JSON.stringify(data)
+    })
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
-      // Reset after showing success (usually you would redirect here)
+      
       setTimeout(() => setSubmitted(false), 3000);
     }, 1500);
+     const data1 = await res.json();
+    console.log(data1)
+  
+    navigate('./dashboard-hostel')
   };
 
   return (
