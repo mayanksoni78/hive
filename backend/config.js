@@ -1,4 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+
+// Load .env here so it works regardless of import order
+dotenv.config();
 
 export function getSupabase() {
   const url = process.env.SUPABASE_URL;

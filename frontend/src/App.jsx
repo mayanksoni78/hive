@@ -13,6 +13,7 @@ import MessMenuAdmin from './components/mess/MessMenuAdmin';
 import TransportSchedule from './Pages/Transport_Schedule.jsx'
 import AddTransport from './components/tranaport/AddBus.jsx'
 import NoticePage from './components/notice/NoticePage';
+import StudentDashboard from "./Pages/StudentDashboard.jsx";
 function App() {
   return (
     <Router>
@@ -30,6 +31,7 @@ function App() {
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
          <Route path="/add_transport" element={<AddTransport/>}/>
          <Route path="/notices" element={<NoticePage />} />
+         <Route path="/student-dashboard" element={<StudentDashboard />} />
         {/* Protected route */}
         <Route
           path="/dashboard"
