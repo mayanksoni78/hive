@@ -1,9 +1,7 @@
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
-export function generateToken(id){
-    return jwt.sign(
-        id,
-        process.env.VITE_SUPABASE_JWT_KEY,
-        {expiresIn:"7d"}
-    )
-}
+export const generateToken = (email) => {
+    return jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+    });
+};

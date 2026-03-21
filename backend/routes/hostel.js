@@ -12,4 +12,5 @@ hostelRouter.post("/login", hostelLogin)
 hostelRouter.post("/signup", hostelSignup)
 
 hostelRouter.get("/dashboard",verifyToken,hostelData)
+// hostelRouter.get("/")
 export default hostelRouter;

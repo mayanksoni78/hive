@@ -1,5 +1,6 @@
-const hostelData=(res,req)=>{
-    res.send(req.user)
+const hostelData=(req,res)=>{
+    console.log(req.user);
+    return res.json({data:req.user})
 }
 
 export default hostelData

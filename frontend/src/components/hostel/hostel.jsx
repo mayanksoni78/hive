@@ -1,4 +1,5 @@
 import React, { useState ,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Building2, 
   Users, 
@@ -208,6 +209,7 @@ const ComplaintCard = ({ complaint }) => {
 // --- Main Dashboard Component ---
 
 function HostelDashboard() {
+  const navigation=useNavigate();
   const [buildings] = useState(initialBuildings);
   const [complaints] = useState(initialComplaints);
   useEffect(()=>{
@@ -216,7 +218,10 @@ function HostelDashboard() {
           method:"GET",
           credentials:"include"
         })
-        console.log(res);
+        // if()
+        const response =await res.json();
+        console.log(response);
+        if(response.msg==="unautherized")navigation("http://localhost:5173/login/hostel")
     }
     hostelData();
   },[])

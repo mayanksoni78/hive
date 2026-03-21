@@ -33,9 +33,7 @@ function RegistrationForm() {
         "Hostel_Name": formData.hostelName, 
         "Password": formData.password,
         "Owner_Name": formData.ownerName, 
-        "Owner_Number": formData.ownerContact, 
-        "Manager_Name": formData.managerName, 
-        "Manager_Contact": formData.managerContact, 
+        "Owner_Number": formData.ownerContact,
         "Address": formData.address 
     };
     
@@ -44,12 +42,14 @@ function RegistrationForm() {
     try {
         const res = await fetch("http://localhost:3000/api/hostel/signup", {
             method: "POST",
+            credentials:"include",
             headers: {
                 "Content-Type": "application/json; charset=UTF-8"
             },
             body: JSON.stringify(data)
         });
-        console.log(res);
+        const data2= await res.json();
+        console.log(data2);
         
     } catch (error) {
         console.error("Submission error:", error);
@@ -163,7 +163,7 @@ function RegistrationForm() {
                 Management Details
               </h2>
 
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-1">
 
                 {/* Owner Info */}
                 <div className="space-y-4">
@@ -241,6 +241,11 @@ function RegistrationForm() {
               <p className="text-xs text-center text-slate-500 mt-4">
                 By clicking register, you agree to our terms of service and data policy.
               </p>
+               <div className="text-center">
+              <a href="/login/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
+                Already have account ?
+              </a>
+            </div>
             </div>
           </form>
         </div>

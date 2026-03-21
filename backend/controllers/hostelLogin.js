@@ -1,23 +1,29 @@
 import { supabase } from "../supabase.js";
 import { generateToken } from "../util/generateToken.js";
+import bcrypt from 'bcrypt'
 export async function hostelLogin(req, res) {
-
-    const { Hostel_Name, password } = req.body;
-    const { data: user } = await supabase
-        .from("Hostel")
-        .select("*")
-        .eq("hostel_email", Hostel_Name)
-        .single();
-    if (!user) return res.status(401).json({ error: "User not found" });
-    const valid = password === user.password;
-    if (!valid) return res.status(401).json({ error: "Wrong password" });
-
-    const token = generateToken(user.hostel_email)
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-    res.json({ mssg: "success" }).status(200);
+    try {
+        const { data } = req.body
+        // console.log(data);
+        const user = await supabase.from('hostel').select("*").eq("hostel_id", data.hostel_id)
+        if (user.length === 0) return res.json({ msg: "Wrong email" })
+        // console.log(user.data[0].password);
+        const isCorrectPassword = await bcrypt.compare( data.password,user.data[0].password);
+        // console.log(isCorrectPassword);
+        if (!isCorrectPassword) return res.json({ msg: "Wrong password" });
+        // console.log(user);
+        const token = generateToken(data.hostel_id)
+        console.log(token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+        res.json({ mssg: "success" }).status(200);
+    }
+    catch (e) {
+        console.log("login failed:", e);
+        return res.json({ error: "something went wrong" });
+    }
 }

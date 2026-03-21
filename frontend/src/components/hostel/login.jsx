@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Building2, Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 function LoginHostel() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -25,40 +25,41 @@ function LoginHostel() {
     e.preventDefault();
     setIsSubmitting(true);
     // Simulate API call
-    
-    const data = {
-  Hostel_Name: formData.email,
-  password: formData.password
-};
-    const res = await fetch("http://localhost:3000/api/hostel/login", {
-      method: "POST",
-      credentials:"include",
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8"
-      },
-      body: JSON.stringify(data)
-    })
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-      
-      setTimeout(() => setSubmitted(false), 3000);
-    }, 1500);
-     const data1 = await res.json();
-    console.log(data1)
-  
-    navigate('./dashboard-hostel')
+    try {
+      const data = {
+        hostel_id: formData.email,
+        password: formData.password
+      };
+      const res = await fetch("http://localhost:3000/api/hostel/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({ data })
+      })
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 3000);
+        // Navigate to dashboard
+        navigate("/dashboard-hostel");
+      }, 1500);
+    } catch (e) {
+      console.log("error:", e);
+    }
+
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
-        
+
         {/* Header Section */}
         <div className="bg-slate-900 px-8 py-8 text-white relative overflow-hidden text-center">
           <div className="absolute top-0 left-0 -mt-4 -ml-4 w-24 h-24 bg-slate-800 rounded-full opacity-50 blur-xl"></div>
           <div className="absolute bottom-0 right-0 -mb-4 -mr-4 w-32 h-32 bg-indigo-900 rounded-full opacity-30 blur-2xl"></div>
-          
+
           <div className="relative z-10 flex flex-col items-center">
             <div className="bg-white/10 p-3 rounded-full mb-4 backdrop-blur-sm">
               <Building2 className="w-8 h-8 text-indigo-400" />
@@ -75,7 +76,7 @@ function LoginHostel() {
         {/* Form Section */}
         <div className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             <div className="space-y-4">
               {/* Email Field */}
               <div>
@@ -195,7 +196,7 @@ function LoginHostel() {
             </div>
 
             <div className="text-center">
-              <a href="#" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
+              <a href="/signup/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
                 Register your hostel account
               </a>
             </div>
