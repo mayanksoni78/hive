@@ -3,23 +3,29 @@ import { supabase } from "../lib/supabase";
 
 const TransportSchedule = () => {
   const [scheduleData, setScheduleData] = useState([]);
- const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSchedule();
   }, []);
 
   const fetchSchedule = async () => {
+    const today = new Date().toISOString().split("T")[0];
+
+    // ✅ Fixed: table is "transport" not "transport_schedule"
     const { data, error } = await supabase
-      .from("transport_schedule")
+      .from("transport")
       .select("*")
-      .order("day", { ascending: true });
+      .gte("date", today)
+      .order("date", { ascending: true })
+      .order("start_time", { ascending: true });
 
     if (error) {
-        console.log(error);
+      console.log(error);
+    } else {
+      setScheduleData(data);
     }
-      else {setScheduleData(data);}
-      setLoading(false);
+    setLoading(false);
   };
 
   if (loading)
@@ -33,36 +39,52 @@ const TransportSchedule = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center p-5 font-sans">
       <h2 className="text-xl font-bold text-gray-800 mb-5">Bus Schedule</h2>
 
-      <div className="w-full max-w-5xl overflow-x-auto">
-        <table className="w-full border-collapse bg-white shadow-md rounded-sm">
-          <thead>
-            <tr className="bg-gray-100 border-b-2 border-gray-300">
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Day</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Time</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Route</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Students</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Buses</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Batch</th>
-            </tr>
-          </thead>
-          <tbody>
-            {scheduleData.map((row, index) => (
-              <tr
-                key={row.id}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                <td className="text-sm text-gray-700 font-bold px-3 py-2.5 border border-gray-200">{row.day}</td>
-                <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.time_range}</td>
-                <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.route}</td>
-                <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.student_count}</td>
-                <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.bus_count}</td>
-                <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.batch}</td>
+      {scheduleData.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-4xl mb-4">🚌</p>
+          <p className="text-gray-500 text-lg font-medium">No upcoming schedules</p>
+          <p className="text-gray-400 text-sm mt-1">Check back later</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-5xl overflow-x-auto">
+          <table className="w-full border-collapse bg-white shadow-md rounded-sm">
+            <thead>
+              <tr className="bg-gray-100 border-b-2 border-gray-300">
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Date</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Day</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Start</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">End</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Pickup</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Destination</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Students</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Buses</th>
+                <th className="text-left text-xs font-bold text-gray-600 uppercase tracking-wider px-3 py-3 border border-gray-200">Batch</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {scheduleData.map((row, index) => (
+                <tr key={row.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">
+                    {new Date(row.date).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" })}
+                  </td>
+                  <td className="text-sm text-gray-700 font-bold px-3 py-2.5 border border-gray-200">{row.day}</td>
+                  {/* ✅ Fixed: was row.time_range → now start_time + end_time */}
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.start_time?.slice(0,5)}</td>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.end_time?.slice(0,5)}</td>
+                  {/* ✅ Fixed: was row.route → now pickup + destination */}
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.pickup}</td>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.destination}</td>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.student_count}</td>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.bus_count}</td>
+                  <td className="text-sm text-gray-700 px-3 py-2.5 border border-gray-200">{row.batch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
-  export default TransportSchedule;
+
+export default TransportSchedule;
