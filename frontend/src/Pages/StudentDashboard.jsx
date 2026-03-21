@@ -189,6 +189,7 @@ function DashboardPage({ student, onNavigate }) {
     { icon:"🔔", label:"View notices",        id:"notices",   bg:"#fffbeb", iconBg:"#fef3c7" },
     { icon:"💳", label:"Check fee status",    id:"fee",       bg:"#f5f3ff", iconBg:"#ede9fe" },
     { icon:"👤", label:"Edit my profile",     id:"profile",   bg:"#f0fdf4", iconBg:"#dcfce7" },
+    { icon:"🗂️", label:"My complaints", id:"mycomplains", bg:"#f0fdf4", iconBg:"#dcfce7" },
   ];
 
   return (
@@ -432,6 +433,7 @@ const NAV = [
   { id:"transport", icon:"🚌", label:"Transport Schedule", section:"Pages", path:"/transport_schedule" },
   { id:"complaint", icon:"📋", label:"Complaints",         section:"Pages", path:"/complain_page"      },
   { id:"notices",   icon:"🔔", label:"Notices",            section:"Pages", path:"/notices"            },
+  { id:"mycomplains", icon:"🗂️", label:"My Complaints", section:"Pages", path:"/my_complains" },
 ];
 
 // ─── APP SHELL ────────────────────────────────────────────────────────────────

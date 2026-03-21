@@ -60,7 +60,7 @@ export default function Login() {
     if (dbError || !data) { setError("Fetch error: " + dbError?.message); return; }
 
     localStorage.setItem("student", JSON.stringify(data));
-    navigate("/dashboard");
+    navigate("/student-dashboard");
 
   } catch (err) {
     setLoading(false);

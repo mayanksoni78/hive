@@ -3,19 +3,26 @@ import { getSupabase } from '../config.js';
 const supabase = getSupabase();
 
 // POST /api/complain/complain_page
-// Body: { enroll_id, description, complain_type, image_url }
+// Body: { enroll_id, hostel_id, room_no, description, complain_type, image_url }
 export const createComplain = async (req, res) => {
   try {
-    const { enroll_id, description, complain_type, image_url } = req.body;
+    const { enroll_id, hostel_id, room_no, description, complain_type, image_url } = req.body;
 
-    if (!enroll_id || !description || !complain_type || !image_url) {
-      return res.json({ error: 'Missing required fields' });
+    // Tell client exactly which field is missing for easier debugging
+    const missing = [];
+    if (!enroll_id)     missing.push('enroll_id');
+    if (!hostel_id)     missing.push('hostel_id');
+    if (!room_no)       missing.push('room_no');
+    if (!description)   missing.push('description');
+    if (!complain_type) missing.push('complain_type');
+    if (missing.length > 0) {
+      return res.json({ error: `Missing required fields: ${missing.join(', ')}` });
     }
 
-    // Fetch student details from DB using enroll_id — don't trust client-sent name
+    // Fetch student name from DB — don't trust client
     const { data: student, error: studentError } = await supabase
       .from('student')
-      .select('enroll_id, name, room_id')
+      .select('name')
       .eq('enroll_id', enroll_id)
       .single();
 
@@ -26,13 +33,15 @@ export const createComplain = async (req, res) => {
     const { data, error } = await supabase
       .from('complaints')
       .insert([{
+        enroll_id,
+        hostel_id:     Number(hostel_id),
         name:          student.name,
-        enroll_id:     student.enroll_id,
-        room_no:       student.room_id,
+        room_no,
         description,
         complain_type,
-        image_url,
+        image_url:     image_url || null,
         status:        'Pending',
+        date:          new Date().toISOString().split('T')[0],
       }])
       .select();
 
@@ -56,11 +65,56 @@ export const getComplains = async (req, res) => {
       .from('complaints')
       .select('*')
       .eq('enroll_id', enroll_id)
-      .order('created_at', { ascending: false });
+      .order('date', { ascending: false }); // ✅ uses 'date' not 'created_at'
 
     if (error) throw error;
 
     res.json({ complains: data });
+  } catch (error) {
+    console.log('Backend Error:', error);
+    res.json({ error: error.message });
+  }
+};
+
+// PATCH /api/complain/resolve/:complaint_id
+// Body: { enroll_id }
+export const resolveComplain = async (req, res) => {
+  try {
+    const { complaint_id } = req.params;
+    const { enroll_id }    = req.body;
+
+    if (!enroll_id) return res.json({ error: 'enroll_id is required' });
+
+    // Verify complaint belongs to this student
+    const { data: existing, error: findError } = await supabase
+      .from('complaints')
+      .select('complaint_id, enroll_id, status')
+      .eq('complaint_id', complaint_id)
+      .eq('enroll_id', enroll_id)
+      .single();
+
+    if (findError || !existing) {
+      return res.json({ error: 'Complaint not found or not yours' });
+    }
+
+    if (existing.status === 'Resolved') {
+      return res.json({ error: 'Complaint is already resolved' });
+    }
+
+    const { data, error } = await supabase
+      .from('complaints')
+      .update({
+        status:        'Resolved',
+        resolved_date: new Date().toISOString().split('T')[0],
+      })
+      .eq('complaint_id', complaint_id)
+      .eq('enroll_id', enroll_id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ message: 'Complaint marked as resolved', data });
   } catch (error) {
     console.log('Backend Error:', error);
     res.json({ error: error.message });
