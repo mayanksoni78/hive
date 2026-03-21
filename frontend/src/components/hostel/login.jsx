@@ -25,8 +25,7 @@ function LoginHostel() {
     e.preventDefault();
     setIsSubmitting(true);
     // Simulate API call
-    const Hostel_Name=document.getElementById("email").value
-    const password=document.getElementById("password").value
+    
     const data = {
   Hostel_Name: formData.email,
   password: formData.password

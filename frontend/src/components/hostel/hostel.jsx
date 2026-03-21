@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
 import { 
   Building2, 
   Users, 
@@ -210,7 +210,16 @@ const ComplaintCard = ({ complaint }) => {
 function HostelDashboard() {
   const [buildings] = useState(initialBuildings);
   const [complaints] = useState(initialComplaints);
-
+  useEffect(()=>{
+    const hostelData=async ()=>{
+        const res= await fetch("http://localhost:3000/api/hostel/dashboard",{
+          method:"GET",
+          credentials:"include"
+        })
+        console.log(res);
+    }
+    hostelData();
+  },[])
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       
