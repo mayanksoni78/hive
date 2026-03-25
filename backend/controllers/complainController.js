@@ -8,7 +8,7 @@ const createComplain=async(req,res)=>{
             return res.json({error:"Missing required fields"})
         }
         const {data,error}=await supabase.from('complaints').insert([{
-            name,enroll_id,room_no,description,complain_type,image_url,status:'Pending'}
+            name,enroll_id,room_no,description,complain_type,image_url,status:'Pending',date:Date.now()}
         ]).select();
 
         if(error)throw error;

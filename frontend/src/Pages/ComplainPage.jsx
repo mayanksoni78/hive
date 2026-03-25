@@ -23,6 +23,7 @@ const AddComplain = () => {
           ...prev,
           enroll_id: user.user_metadata.enroll_id,
           name: user.user_metadata.name,
+          room_no: user.user_metadata.room_no,
         }));
       }
     };
@@ -74,7 +75,6 @@ const AddComplain = () => {
       setMessage({ type: "success", text: "Complaint registered successfully." });
       setComplain((prev) => ({
         ...prev,
-        room_no: "",
         description: "",
         complain_type: "",
       }));
@@ -161,19 +161,10 @@ const AddComplain = () => {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="room_no" className={labelClass}>
-                    Room No.
-                  </label>
-                  <input
-                    type="text"
-                    id="room_no"
-                    name="room_no"
-                    value={complain.room_no}
-                    onChange={handleChange}
-                    required
-                    className={inputClass}
-                    placeholder="e.g. A-204"
-                  />
+                  <label className={labelClass}>Room No</label>
+                  <div className="w-full px-3 py-2.5 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded">
+                    {complain.room_no|| "Loading..."}
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="complain_type" className={labelClass}>
