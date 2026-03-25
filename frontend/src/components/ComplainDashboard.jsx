@@ -15,6 +15,7 @@ const ComplainDashboard = () => {
       .from("complaints")
       .select("*")
       .order("created_at", { ascending: false });
+
     if (error) {
       console.error("Error fetching complaints:", error);
     } else {
@@ -39,61 +40,63 @@ const ComplainDashboard = () => {
             <p className="text-lg text-gray-600">No complaints found</p>
           </div>
         ) : (
-           <div> 
-            <div className="text-center py-12">
-          <p className="text-lg text-gray-600">Total Complains {complaints.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-         
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Day
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {complaints.map((c) => {
-                    const dateObj = new Date(c.created_at);
-                  
-                    return (
-                      <tr key={comp.id} className="hover:bg-gray-50 transition-colors">
+          <div>
+            <div className="mb-6 px-2">
+              <p className="text-lg text-gray-600">
+                Total Complaints: <span className="font-bold text-gray-900">{complaints.length}</span>
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Enroll ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Room</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {/* ✅ Fixed: was using 'comp' but variable is 'c' */}
+                    {complaints.map((c) => (
+                      <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {comp.date}
+                          {/* ✅ Fixed: was c.date (doesn't exist) → using created_at */}
+                          {new Date(c.created_at).toLocaleDateString("en-IN", {
+                            day: "numeric", month: "short", year: "numeric"
+                          })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {comp.day}
+                          {c.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {comp.complaint_type}
+                          {c.enroll_id}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 max-w-md">
-                          {comp.description}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {/* ✅ Fixed: was c.day (doesn't exist) → using room_no */}
+                          {c.room_no}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {/* ✅ Fixed: was c.complaint_type → correct column is complain_type */}
+                          {c.complain_type}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                          {c.description}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <StatusBadge status={comp.status} />
+                          <StatusBadge status={c.status} />
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
           </div>
         )}
       </div>
@@ -103,17 +106,16 @@ const ComplainDashboard = () => {
 
 const StatusBadge = ({ status }) => {
   const statusStyles = {
+    Resolved: "bg-green-100 text-green-800",
     resolved: "bg-green-100 text-green-800",
-    pending: "bg-yellow-100 text-yellow-800",
+    Pending:  "bg-yellow-100 text-yellow-800",
+    pending:  "bg-yellow-100 text-yellow-800",
+    "In Progress": "bg-blue-100 text-blue-800",
   };
 
   return (
-    <span
-      className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-        statusStyles[status] || "bg-gray-100 text-gray-800"
-      }`}
-    >
-      {status === "resolved" ? "Resolved" : "Pending"}
+    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${statusStyles[status] || "bg-gray-100 text-gray-800"}`}>
+      {status || "Pending"}
     </span>
   );
 };

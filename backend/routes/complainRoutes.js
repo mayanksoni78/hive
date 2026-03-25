@@ -1,10 +1,10 @@
 import express from 'express';
-import authMiddleware  from '../middlewares/authMiddlewares.js';
-import createComplain from '../controllers/complainController.js'
+import { createComplain, getComplains, resolveComplain } from '../controllers/complainController.js';
 
-const complainrouter=express.Router();
+const complainrouter = express.Router();
 
-complainrouter.post('/complain_page',authMiddleware,createComplain);
+complainrouter.post('/complain_page',          createComplain);
+complainrouter.get('/my_complains',            getComplains);
+complainrouter.patch('/resolve/:complaint_id', resolveComplain); // ✅ complaint_id not id
 
 export default complainrouter;
-

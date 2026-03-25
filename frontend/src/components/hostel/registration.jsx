@@ -33,22 +33,23 @@ function RegistrationForm() {
         "Hostel_Name": formData.hostelName, 
         "Password": formData.password,
         "Owner_Name": formData.ownerName, 
-        "Owner_Number": formData.ownerContact, 
-        "Manager_Name": formData.managerName, 
-        "Manager_Contact": formData.managerContact, 
+        "Owner_Number": formData.ownerContact,
         "Address": formData.address 
     };
     
     console.log("Submitting data:", data);
     
     try {
-        const res = await fetch("https://hive-delta-seven.vercel.app/api/hostel/signup", {
+        const res = await fetch("http://localhost:3000/api/hostel/signup", {
             method: "POST",
+            credentials:"include",
             headers: {
                 "Content-Type": "application/json; charset=UTF-8"
             },
             body: JSON.stringify(data)
         });
+        const data2= await res.json();
+        console.log(data2);
         
     } catch (error) {
         console.error("Submission error:", error);
@@ -162,7 +163,7 @@ function RegistrationForm() {
                 Management Details
               </h2>
 
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-1">
 
                 {/* Owner Info */}
                 <div className="space-y-4">
@@ -206,47 +207,6 @@ function RegistrationForm() {
                     </div>
                   </div>
                 </div>
-
-                {/* Manager Info */}
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="managerName" className="block text-sm font-medium text-slate-700 mb-1.5">
-                      Manager Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <User className="h-4 w-4" />
-                      </div>
-                      <input
-                        type="text"
-                        id="managerName"
-                        name="managerName"
-                        value={formData.managerName}
-                        onChange={handleChange}
-                        className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="managerContact" className="block text-sm font-medium text-slate-700 mb-1.5">
-                      Manager Contact
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <Phone className="h-4 w-4" />
-                      </div>
-                      <input
-                        type="tel"
-                        id="managerContact"
-                        name="managerContact"
-                        value={formData.managerContact}
-                        onChange={handleChange}
-                        className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-                </div>
-
               </div>
             </div>
 
@@ -281,6 +241,11 @@ function RegistrationForm() {
               <p className="text-xs text-center text-slate-500 mt-4">
                 By clicking register, you agree to our terms of service and data policy.
               </p>
+               <div className="text-center">
+              <a href="/login/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
+                Already have account ?
+              </a>
+            </div>
             </div>
           </form>
         </div>

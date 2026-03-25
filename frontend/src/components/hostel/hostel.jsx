@@ -1,355 +1,425 @@
-import React, { useState } from 'react';
-import { 
-  Building2, 
-  Users, 
-  UserPlus, 
-  Briefcase, 
-  Utensils, 
-  Plus, 
-  Search, 
-  Bell, 
-  MoreVertical, 
-  Home,
-  ShieldCheck,
-  Hammer,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  MoreHorizontal
-} from 'lucide-react';
+import { useEffect, useState } from "react";
 
-// --- Mock Data ---
-const initialBuildings = [
-  {
-    id: 1,
-    name: "Sunrise Block A",
-    type: "Boys Hostel",
-    occupancy: "85%",
-    floors: [
-      {
-        level: 1,
-        name: "Ground Floor",
-        rooms: [
-          { number: "101", status: "occupied", capacity: 3, filled: 3 },
-          { number: "102", status: "partial", capacity: 3, filled: 1 },
-          { number: "103", status: "vacant", capacity: 2, filled: 0 },
-          { number: "104", status: "occupied", capacity: 2, filled: 2 },
-          { number: "105", status: "maintenance", capacity: 2, filled: 0 },
-        ]
-      },
-      {
-        level: 2,
-        name: "First Floor",
-        rooms: [
-          { number: "201", status: "occupied", capacity: 3, filled: 3 },
-          { number: "202", status: "occupied", capacity: 3, filled: 3 },
-          { number: "203", status: "vacant", capacity: 3, filled: 0 },
-          { number: "204", status: "partial", capacity: 2, filled: 1 },
-          { number: "205", status: "vacant", capacity: 2, filled: 0 },
-        ]
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: "Moonlight Block B",
-    type: "Girls Hostel",
-    occupancy: "40%",
-    floors: [
-      {
-        level: 1,
-        name: "Ground Floor",
-        rooms: [
-          { number: "101", status: "occupied", capacity: 2, filled: 2 },
-          { number: "102", status: "vacant", capacity: 2, filled: 0 },
-          { number: "103", status: "vacant", capacity: 2, filled: 0 },
-        ]
-      },
-       {
-        level: 2,
-        name: "First Floor",
-        rooms: [
-          { number: "201", status: "partial", capacity: 2, filled: 1 },
-          { number: "202", status: "vacant", capacity: 2, filled: 0 },
-          { number: "203", status: "vacant", capacity: 2, filled: 0 },
-        ]
-      }
-    ]
-  }
-];
+const API_URL = "http://localhost:3000/api/hostel/dashboard";
 
-const initialComplaints = [
-  { id: 1, room: "101", student: "Arjun Verma", issue: "Leaking tap in bathroom", priority: "high", time: "2h ago" },
-  { id: 2, room: "205", student: "Karan Singh", issue: "Wi-Fi not connecting", priority: "medium", time: "5h ago" },
-  { id: 3, room: "302", student: "Rohan Das", issue: "Window latch broken", priority: "low", time: "1d ago" },
-  { id: 4, room: "104", student: "Vikram M.", issue: "Study chair broken", priority: "medium", time: "2d ago" },
-];
+// ── tiny helpers ──────────────────────────────────────────────────────────────
+const fmt = (n) => (n !== null && n !== undefined ? n : "—");
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—");
+const fmtCurrency = (n) => (n !== null && n !== undefined ? `₹${Number(n).toLocaleString("en-IN")}` : "—");
 
-// --- Sub-components ---
-
-const ActionButton = ({ icon: Icon, label, colorClass = "bg-white text-slate-700 hover:bg-slate-50 border-slate-200" }) => (
-  <button className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border shadow-sm transition-all ${colorClass}`}>
-    <Icon className="w-4 h-4" />
-    {label}
-  </button>
-);
-
-const RoomBox = ({ room }) => {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'occupied': return 'bg-red-50 border-red-200 text-red-700';
-      case 'partial': return 'bg-yellow-50 border-yellow-200 text-yellow-700';
-      case 'maintenance': return 'bg-slate-100 border-slate-200 text-slate-500';
-      default: return 'bg-emerald-50 border-emerald-200 text-emerald-700'; // vacant
-    }
-  };
-
-  return (
-    <div className={`
-      relative p-3 rounded-md border text-center cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md
-      ${getStatusColor(room.status)}
-    `}>
-      <div className="font-bold text-sm">R-{room.number}</div>
-      <div className="text-[10px] uppercase tracking-wider font-semibold mt-1 opacity-80">{room.status}</div>
-      <div className="mt-2 flex justify-center gap-0.5">
-        {[...Array(room.capacity)].map((_, i) => (
-          <div 
-            key={i} 
-            className={`w-1.5 h-1.5 rounded-full ${i < room.filled ? 'bg-current' : 'bg-current opacity-20'}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
+const STATUS_COLOR = {
+  available: "#22c55e",
+  occupied: "#ef4444",
+  maintenance: "#f59e0b",
+  paid: "#22c55e",
+  unpaid: "#ef4444",
+  pending: "#f59e0b",
+  Pending: "#f59e0b",
+  resolved: "#22c55e",
+  Resolved: "#22c55e",
 };
 
-const BuildingCard = ({ building }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-
+function Badge({ label }) {
+  const color = STATUS_COLOR[label] ?? "#6b7280";
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      {/* Building Header */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-slate-900">{building.name}</h3>
-            <p className="text-xs text-slate-500">{building.type} • {building.occupancy} Full</p>
-          </div>
-        </div>
-        <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-400 hover:text-slate-600">
-          {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-        </button>
-      </div>
+    <span style={{
+      background: color + "22",
+      color,
+      border: `1px solid ${color}55`,
+      borderRadius: 6,
+      padding: "2px 10px",
+      fontSize: 12,
+      fontWeight: 700,
+      letterSpacing: ".04em",
+      textTransform: "capitalize",
+      whiteSpace: "nowrap",
+    }}>{label}</span>
+  );
+}
 
-      {/* Floors & Rooms */}
-      {isExpanded && (
-        <div className="p-4 space-y-6">
-          {building.floors.map((floor) => (
-            <div key={floor.level} className="space-y-3">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                {floor.name}
-              </h4>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                {floor.rooms.map((room) => (
-                  <RoomBox key={room.number} room={room} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+function Card({ children, style = {} }) {
+  return (
+    <div style={{
+      background: "rgba(255,255,255,0.035)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: 16,
+      padding: "20px 24px",
+      backdropFilter: "blur(4px)",
+      ...style,
+    }}>{children}</div>
+  );
+}
+
+function SectionTitle({ icon, title, count }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#e2e8f0", letterSpacing: ".02em" }}>{title}</h2>
+      {count !== undefined && (
+        <span style={{ marginLeft: "auto", background: "#1e40af33", color: "#93c5fd", border: "1px solid #3b82f633", borderRadius: 999, padding: "1px 12px", fontSize: 12, fontWeight: 700 }}>
+          {count}
+        </span>
       )}
-    </div>
-  );
-};
-
-const ComplaintCard = ({ complaint }) => {
-  const getPriorityColor = (p) => {
-    switch(p) {
-      case 'high': return 'bg-red-100 text-red-700';
-      case 'medium': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-blue-100 text-blue-700';
-    }
-  };
-
-  return (
-    <div className="group flex items-start gap-4 p-4 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-200 hover:shadow-sm transition-all">
-      <div className="flex-shrink-0">
-        <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs shadow-sm">
-          {complaint.room}
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <h4 className="text-sm font-semibold text-slate-900 truncate pr-2">{complaint.issue}</h4>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${getPriorityColor(complaint.priority)}`}>
-            {complaint.priority}
-          </span>
-        </div>
-        <p className="text-xs text-slate-500 mb-2">Reported by {complaint.student}</p>
-        <div className="flex items-center gap-3 text-xs text-slate-400">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {complaint.time}
-          </span>
-          <button className="text-indigo-600 hover:text-indigo-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-            Mark Resolved
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- Main Dashboard Component ---
-
-function HostelDashboard() {
-  const [buildings] = useState(initialBuildings);
-  const [complaints] = useState(initialComplaints);
-
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      
-      {/* Top Navigation */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-slate-900 text-white p-1.5 rounded-md">
-              <Home className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-slate-900">HostelOne</span>
-          </div>
-
-          <div className="flex-1 max-w-lg mx-8 hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search rooms, students, or staff..." 
-                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-100 border-none rounded-md focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-            </button>
-            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-medium cursor-pointer">
-              AD
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header Actions Area */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-500 text-sm">Overview of your properties and occupancy.</p>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <ActionButton icon={UserPlus} label="Add Student" colorClass="bg-indigo-600 text-white hover:bg-indigo-700 border-transparent shadow-md shadow-indigo-200" />
-            <ActionButton icon={Briefcase} label="Add Worker" />
-            <ActionButton icon={ShieldCheck} label="Add Agency" />
-            <ActionButton icon={Utensils} label="Food Menu" />
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Total Capacity', value: '450 Beds', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Current Occupancy', value: '342 Students', icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-            { label: 'Pending Requests', value: '12', icon: UserPlus, color: 'text-orange-600', bg: 'bg-orange-50' },
-            { label: 'Staff on Duty', value: '8 Active', icon: Hammer, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          ].map((stat, index) => (
-            <div key={index} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-                <h3 className="text-xl font-bold text-slate-900">{stat.value}</h3>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Main Content Grid: Buildings (Left) & Complaints (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Buildings */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">Building Overview</h2>
-              <button className="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700">
-                <Plus className="w-4 h-4" /> Add New Building
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {buildings.map(building => (
-                <BuildingCard key={building.id} building={building} />
-              ))}
-              
-              {/* Add Building Placeholder */}
-              <div className="border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center p-12 text-slate-400 hover:border-indigo-400 hover:text-indigo-500 hover:bg-slate-50/50 transition-all cursor-pointer group h-full min-h-[300px]">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-indigo-50 transition-colors">
-                  <Plus className="w-8 h-8" />
-                </div>
-                <h3 className="font-semibold text-lg">Add New Building</h3>
-                <p className="text-sm mt-1">Configure floors and rooms</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Unresolved Complaints */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                Unresolved Issues
-              </h2>
-              <button className="text-sm text-slate-500 hover:text-slate-700">View All</button>
-            </div>
-
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-              <div className="space-y-3">
-                {complaints.map(complaint => (
-                  <ComplaintCard key={complaint.id} complaint={complaint} />
-                ))}
-              </div>
-              
-              <button className="w-full mt-4 py-2 text-sm text-slate-500 hover:text-indigo-600 font-medium border-t border-slate-100 transition-colors flex items-center justify-center gap-2">
-                <CheckCircle className="w-4 h-4" /> View Resolved History
-              </button>
-            </div>
-
-            {/* Additional Widget (e.g. Notices) could go here */}
-            <div className="bg-indigo-900 rounded-xl p-6 text-white relative overflow-hidden">
-               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
-               <h3 className="font-bold text-lg mb-2 relative z-10">Staff Meeting</h3>
-               <p className="text-indigo-200 text-sm mb-4 relative z-10">Monthly review meeting with all floor managers at 5:00 PM today.</p>
-               <button className="bg-white text-indigo-900 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-50 transition-colors relative z-10">
-                 View Details
-               </button>
-            </div>
-          </div>
-
-        </div>
-
-      </main>
     </div>
   );
 }
 
-export default HostelDashboard;
+// ── stat card ─────────────────────────────────────────────────────────────────
+function StatCard({ icon, label, value, sub, accent = "#3b82f6" }) {
+  return (
+    <Card style={{ display: "flex", gap: 14, alignItems: "center" }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+        background: accent + "22", fontSize: 22, flexShrink: 0,
+      }}>{icon}</div>
+      <div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "#f1f5f9", lineHeight: 1 }}>{value}</div>
+        <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 3 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: accent, marginTop: 2 }}>{sub}</div>}
+      </div>
+    </Card>
+  );
+}
+
+// ── ROOMS ─────────────────────────────────────────────────────────────────────
+function RoomsSection({ rooms }) {
+  if (!rooms?.length) return (
+    <Card><SectionTitle icon="🛏️" title="Rooms" count={0} /><EmptyState msg="No rooms found" /></Card>
+  );
+  return (
+    <Card>
+      <SectionTitle icon="🛏️" title="Rooms" count={rooms.length} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+        {rooms.map((r) => {
+          const pct = r.capacity ? Math.round((r.occupied / r.capacity) * 100) : 0;
+          const accent = r.status === "available" ? "#22c55e" : r.status === "maintenance" ? "#f59e0b" : "#ef4444";
+          return (
+            <div key={r.room_id} style={{
+              background: "rgba(255,255,255,0.04)",
+              border: `1px solid ${accent}44`,
+              borderRadius: 12,
+              padding: "14px 16px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", top: 0, left: 0, width: `${pct}%`, height: 3, background: accent, borderRadius: 2 }} />
+              <div style={{ fontWeight: 800, fontSize: 16, color: "#f1f5f9" }}>Room {r.room_no}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", margin: "6px 0 8px" }}>
+                {r.occupied ?? 0}/{r.capacity ?? 0} occupied
+              </div>
+              <Badge label={r.status ?? "unknown"} />
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+// ── STUDENTS ──────────────────────────────────────────────────────────────────
+function StudentsSection({ students }) {
+  const [search, setSearch] = useState("");
+  const filtered = (students ?? []).filter(s =>
+    [s.name, s.enroll_id, s.email, s.phone].some(v => v?.toLowerCase().includes(search.toLowerCase()))
+  );
+  return (
+    <Card>
+      <SectionTitle icon="🎓" title="Students" count={students?.length ?? 0} />
+      <input
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search students…"
+        style={inputStyle}
+      />
+      {!filtered.length ? <EmptyState msg="No students found" /> : (
+        <div style={{ overflowX: "auto" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>{["Name", "Enroll ID", "Email", "Phone", "Gender", "Year", "Room"].map(h => (
+                <th key={h} style={thStyle}>{h}</th>
+              ))}</tr>
+            </thead>
+            <tbody>
+              {filtered.map((s, i) => (
+                <tr key={s.enroll_id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)" }}>
+                  <td style={tdStyle}><span style={{ fontWeight: 600, color: "#e2e8f0" }}>{fmt(s.name)}</span></td>
+                  <td style={tdStyle}><span style={{ color: "#93c5fd", fontFamily: "monospace", fontSize: 13 }}>{fmt(s.enroll_id)}</span></td>
+                  <td style={tdStyle}>{fmt(s.email)}</td>
+                  <td style={tdStyle}>{fmt(s.phone)}</td>
+                  <td style={tdStyle}>{fmt(s.gender)}</td>
+                  <td style={tdStyle}>{fmt(s.year)}</td>
+                  <td style={tdStyle}>{fmt(s.room_id)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── COMPLAINTS ────────────────────────────────────────────────────────────────
+function ComplaintsSection({ complaints }) {
+  const [filter, setFilter] = useState("All");
+  const statuses = ["All", "Pending", "Resolved"];
+  const filtered = filter === "All" ? (complaints ?? []) : (complaints ?? []).filter(c => c.status === filter);
+  return (
+    <Card>
+      <SectionTitle icon="📢" title="Complaints" count={complaints?.length ?? 0} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        {statuses.map(s => (
+          <button key={s} onClick={() => setFilter(s)} style={{
+            padding: "4px 14px", borderRadius: 999, border: "1px solid",
+            borderColor: filter === s ? "#3b82f6" : "rgba(255,255,255,0.1)",
+            background: filter === s ? "#1d4ed855" : "transparent",
+            color: filter === s ? "#93c5fd" : "#94a3b8",
+            cursor: "pointer", fontSize: 13, fontWeight: 600,
+          }}>{s}</button>
+        ))}
+      </div>
+      {!filtered.length ? <EmptyState msg="No complaints" /> : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {filtered.map(c => (
+            <div key={c.complaint_id} style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 10,
+              padding: "14px 16px",
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: 8,
+            }}>
+              <div>
+                <div style={{ fontWeight: 700, color: "#e2e8f0", marginBottom: 4 }}>
+                  {fmt(c.complain_type)} — Room {fmt(c.room_no)}
+                </div>
+                <div style={{ color: "#94a3b8", fontSize: 13 }}>{fmt(c.description)}</div>
+                <div style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>📅 {fmtDate(c.date)}</div>
+              </div>
+              <Badge label={c.status ?? "unknown"} />
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── FEES ──────────────────────────────────────────────────────────────────────
+function FeesSection({ fees }) {
+  const total = (fees ?? []).reduce((a, f) => a + (Number(f.amount) || 0), 0);
+  const paid = (fees ?? []).filter(f => f.status === "paid").reduce((a, f) => a + (Number(f.amount) || 0), 0);
+  return (
+    <Card>
+      <SectionTitle icon="💰" title="Fees" count={fees?.length ?? 0} />
+      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        <div style={{ background: "#22c55e22", border: "1px solid #22c55e33", borderRadius: 10, padding: "10px 18px" }}>
+          <div style={{ fontSize: 12, color: "#86efac" }}>Collected</div>
+          <div style={{ fontWeight: 800, color: "#22c55e", fontSize: 18 }}>{fmtCurrency(paid)}</div>
+        </div>
+        <div style={{ background: "#ef444422", border: "1px solid #ef444433", borderRadius: 10, padding: "10px 18px" }}>
+          <div style={{ fontSize: 12, color: "#fca5a5" }}>Pending</div>
+          <div style={{ fontWeight: 800, color: "#ef4444", fontSize: 18 }}>{fmtCurrency(total - paid)}</div>
+        </div>
+      </div>
+      {!fees?.length ? <EmptyState msg="No fee records" /> : (
+        <div style={{ overflowX: "auto" }}>
+          <table style={tableStyle}>
+            <thead>
+              <tr>{["Enroll ID", "Amount", "Status", "Due Date", "Paid Date"].map(h => (
+                <th key={h} style={thStyle}>{h}</th>
+              ))}</tr>
+            </thead>
+            <tbody>
+              {fees.map((f, i) => (
+                <tr key={f.fee_id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.02)" }}>
+                  <td style={tdStyle}><span style={{ color: "#93c5fd", fontFamily: "monospace", fontSize: 13 }}>{fmt(f.enroll_id)}</span></td>
+                  <td style={tdStyle}><span style={{ fontWeight: 700 }}>{fmtCurrency(f.amount)}</span></td>
+                  <td style={tdStyle}><Badge label={f.status ?? "unknown"} /></td>
+                  <td style={tdStyle}>{fmtDate(f.due_date)}</td>
+                  <td style={tdStyle}>{fmtDate(f.paid_date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── ADMINS ────────────────────────────────────────────────────────────────────
+function AdminsSection({ admins }) {
+  return (
+    <Card>
+      <SectionTitle icon="👤" title="Admins" count={admins?.length ?? 0} />
+      {!admins?.length ? <EmptyState msg="No admin records" /> : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+          {admins.map(a => (
+            <div key={a.admin_id} style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 12,
+              padding: "14px 16px",
+            }}>
+              <div style={{ fontWeight: 700, color: "#e2e8f0", fontSize: 15 }}>{fmt(a.name)}</div>
+              <div style={{ color: "#93c5fd", fontSize: 12, marginTop: 4 }}>{fmt(a.email)}</div>
+              <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>🏢 {fmt(a.department)}</div>
+              <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>📞 {fmt(a.phone)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function EmptyState({ msg }) {
+  return (
+    <div style={{ textAlign: "center", color: "#475569", padding: "32px 0", fontSize: 14 }}>
+      <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>{msg}
+    </div>
+  );
+}
+
+// ── STYLES ───────────────────────────────────────────────────────────────────
+const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
+const thStyle = {
+  textAlign: "left", padding: "8px 12px", color: "#64748b",
+  fontWeight: 700, fontSize: 11, letterSpacing: ".08em", textTransform: "uppercase",
+  borderBottom: "1px solid rgba(255,255,255,0.06)",
+};
+const tdStyle = { padding: "10px 12px", color: "#94a3b8", borderBottom: "1px solid rgba(255,255,255,0.04)" };
+const inputStyle = {
+  width: "100%", boxSizing: "border-box",
+  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+  borderRadius: 8, padding: "8px 14px", color: "#e2e8f0", fontSize: 13,
+  outline: "none", marginBottom: 14,
+};
+
+// ── NAV TABS ─────────────────────────────────────────────────────────────────
+const TABS = [
+  { key: "overview", label: "Overview", icon: "📊" },
+  { key: "rooms", label: "Rooms", icon: "🛏️" },
+  { key: "students", label: "Students", icon: "🎓" },
+  { key: "complaints", label: "Complaints", icon: "📢" },
+  { key: "fees", label: "Fees", icon: "💰" },
+  { key: "admins", label: "Admins", icon: "👤" },
+];
+
+// ── MAIN DASHBOARD ────────────────────────────────────────────────────────────
+export default function Dashboard() {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [tab, setTab] = useState("overview");
+
+  useEffect(() => {
+    fetch(API_URL, { credentials: "include" })
+      .then(r => r.json())
+      .then(res => setData(res.data?.[0] ?? res.data ?? res))
+      .catch(() => setError("Failed to load dashboard data. Make sure the API is running."));
+  }, []);
+
+  if (error) return (
+    <div style={{ ...shell, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center", color: "#ef4444" }}>
+        <div style={{ fontSize: 48 }}>⚠️</div>
+        <div style={{ marginTop: 12, fontSize: 16 }}>{error}</div>
+      </div>
+    </div>
+  );
+
+  if (!data) return (
+    <div style={{ ...shell, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center", color: "#64748b" }}>
+        <div style={{ fontSize: 40, animation: "spin 1s linear infinite" }}>⏳</div>
+        <div style={{ marginTop: 12 }}>Loading dashboard…</div>
+      </div>
+    </div>
+  );
+
+  const { hostel_name, room = [], student = [], complaints = [], fee = [], admin = [] } = data;
+  const availRooms = room.filter(r => r.status === "available").length;
+  const pendingComplaints = complaints.filter(c => c.status === "Pending" || c.status === "pending").length;
+  const unpaidFees = fee.filter(f => f.status === "unpaid").length;
+
+  return (
+    <div style={shell}>
+      {/* gradient blobs for depth */}
+      <div style={{ position: "fixed", top: -200, left: -200, width: 600, height: 600, background: "radial-gradient(circle, #1d4ed822 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position: "fixed", bottom: -200, right: -100, width: 500, height: 500, background: "radial-gradient(circle, #7c3aed15 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 20px 40px" }}>
+        {/* HEADER */}
+        <div style={{ padding: "28px 0 20px", borderBottom: "1px solid rgba(255,255,255,0.07)", marginBottom: 24, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 11, color: "#3b82f6", fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 4 }}>Hostel Management</div>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "#f1f5f9", letterSpacing: "-.02em" }}>{hostel_name ?? "Dashboard"}</h1>
+            <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>ID: {data.hostel_id}</div>
+          </div>
+          <div style={{ fontSize: 12, color: "#475569" }}>Last updated: {new Date().toLocaleTimeString("en-IN")}</div>
+        </div>
+
+        {/* NAV */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 28, overflowX: "auto", paddingBottom: 4 }}>
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              padding: "7px 16px", borderRadius: 10, border: "1px solid",
+              borderColor: tab === t.key ? "#3b82f6" : "rgba(255,255,255,0.07)",
+              background: tab === t.key ? "#1d4ed833" : "rgba(255,255,255,0.03)",
+              color: tab === t.key ? "#93c5fd" : "#64748b",
+              cursor: "pointer", fontSize: 13, fontWeight: 600,
+              whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6,
+              transition: "all .15s",
+            }}>
+              <span>{t.icon}</span>{t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* CONTENT */}
+        {tab === "overview" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* stats row */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
+              <StatCard icon="🛏️" label="Total Rooms" value={room.length} sub={`${availRooms} available`} accent="#3b82f6" />
+              <StatCard icon="🎓" label="Students" value={student.length} accent="#8b5cf6" />
+              <StatCard icon="📢" label="Complaints" value={complaints.length} sub={`${pendingComplaints} pending`} accent="#f59e0b" />
+              <StatCard icon="💰" label="Fee Records" value={fee.length} sub={`${unpaidFees} unpaid`} accent="#22c55e" />
+              <StatCard icon="👤" label="Admins" value={admin.length} accent="#ec4899" />
+            </div>
+            <RoomsSection rooms={room} />
+            <StudentsSection students={student} />
+            <ComplaintsSection complaints={complaints} />
+            <FeesSection fees={fee} />
+            <AdminsSection admins={admin} />
+          </div>
+        )}
+        {tab === "rooms" && <RoomsSection rooms={room} />}
+        {tab === "students" && <StudentsSection students={student} />}
+        {tab === "complaints" && <ComplaintsSection complaints={complaints} />}
+        {tab === "fees" && <FeesSection fees={fee} />}
+        {tab === "admins" && <AdminsSection admins={admin} />}
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+      `}</style>
+    </div>
+  );
+}
+
+const shell = {
+  minHeight: "100vh",
+  background: "#080c14",
+  color: "#94a3b8",
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  position: "relative",
+  overflow: "hidden",
+};

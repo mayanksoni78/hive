@@ -1,14 +1,23 @@
 import jwt from "jsonwebtoken";
 
 export function verifyToken(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) return res.sendStatus(401);
+  // console.log(req);
+  const token = req.cookies?.token;
+  console.log(token)
+  if (!token) {
+    return res.json({ msg: "Unauthorized: No token" });
+  }
 
   try {
-    req.user = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.email;
+    // console.log(decoded)
     next();
-  } catch {
-    res.sendStatus(403);
+
+  } catch (error) {
+    console.error("JWT Error:", error.message);
+
+    return res.status(401).json({ msg: "Unauthorized: Invalid token" });
   }
 }
