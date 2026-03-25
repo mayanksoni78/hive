@@ -5,7 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const HOSTEL_ID = 1;
+const HOSTEL_ID = 'admin@test';
 // const { data: adminData } = await supabase
 //     .from('Admin')
 //     .select('hostel_id')
