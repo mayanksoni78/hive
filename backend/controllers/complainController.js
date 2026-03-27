@@ -1,29 +1,4 @@
 import {supabase} from "../supabase.js"
-
-const createComplain=async(req,res)=>{
-    try{
-        const {name,enroll_id,room_no,description,complain_type,image_url}= req.body;
-        if(!room_no || !description || !complain_type ||!image_url ||!name ||!enroll_id )
-        {
-            return res.json({error:"Missing required fields"})
-        }
-        const {data,error}=await supabase.from('complaints').insert([{
-            name,enroll_id,room_no,description,complain_type,image_url,status:'Pending',date:Date.now()}
-        ]).select();
-
-        if(error)throw error;
-        
-        res.json({message:"Complain created",data})
-        }
-    catch(error){
-        console.log("Backend Error:", error);
-         res.json({ error: error.message })
-    }
-}
-import { getSupabase } from '../config.js';
-
-const supabase = getSupabase();
-
 // POST /api/complain/complain_page
 // Body: { enroll_id, hostel_id, room_no, description, complain_type, image_url }
 export const createComplain = async (req, res) => {
