@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getNotices, subscribeToNotices } from '../../lib/supabase';
 
-const HOSTEL_ID = 1;
+const HOSTEL_ID = 'admin@test';
 
 export default function NoticePage() {
     const [notices, setNotices]= useState([]);

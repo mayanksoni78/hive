@@ -20,7 +20,7 @@ export default function Login() {
     // STEP 1 — fetch by enroll_id only, no .single()
     const { data: rows, error: e1 } = await supabase
       .from("student")
-      .select("enroll_id, email, password, status")
+      .select("enroll_id, email, password")
       .eq("enroll_id", enrollId.trim());
 
     console.log("Rows found:", rows, e1);

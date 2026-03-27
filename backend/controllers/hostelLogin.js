@@ -3,8 +3,12 @@ import { generateToken } from "../util/generateToken.js";
 import bcrypt from 'bcrypt'
 export async function hostelLogin(req, res) {
     try {
-        const { data } = req.body
-        // console.log(data);
+        const { hostel_id,password } = req.body
+        const data={
+            "hostel_id":hostel_id,
+            "password":password
+        }
+        console.log(data.hostel_id)
         const user = await supabase.from('hostel').select("*").eq("hostel_id", data.hostel_id)
         if (user.length === 0) return res.json({ msg: "Wrong email" })
         // console.log(user.data[0].password);
