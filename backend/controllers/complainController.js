@@ -1,7 +1,4 @@
-import { getSupabase } from '../config.js';
-
-const supabase = getSupabase();
-
+import {supabase} from "../supabase.js"
 // POST /api/complain/complain_page
 // Body: { enroll_id, hostel_id, room_no, description, complain_type, image_url }
 export const createComplain = async (req, res) => {
