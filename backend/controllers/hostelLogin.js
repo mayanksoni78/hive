@@ -9,13 +9,14 @@ export async function hostelLogin(req, res) {
             "password":password
         }
         console.log(data.hostel_id)
+
         const user = await supabase.from('hostel').select("*").eq("hostel_id", data.hostel_id)
         if (user.length === 0) return res.json({ msg: "Wrong email" })
-        // console.log(user.data[0].password);
+         //console.log(user.data[0].password);
         const isCorrectPassword = await bcrypt.compare( data.password,user.data[0].password);
-        // console.log(isCorrectPassword);
+        console.log(isCorrectPassword);
         if (!isCorrectPassword) return res.json({ msg: "Wrong password" });
-        // console.log(user);
+        //console.log(user);
         const token = generateToken(data.hostel_id)
         console.log(token);
         res.cookie("token", token, {
