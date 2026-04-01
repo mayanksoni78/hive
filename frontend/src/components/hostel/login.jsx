@@ -36,7 +36,7 @@ function LoginHostel() {
         headers: {
           "Content-Type": "application/json; charset=UTF-8"
         },
-        body: JSON.stringify({ data })
+        body: JSON.stringify(data)
       })
       setTimeout(() => {
         setIsSubmitting(false);
@@ -196,7 +196,7 @@ function LoginHostel() {
             </div>
 
             <div className="text-center">
-              <a href="/signup/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
+              <a href="/hostel/signup" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
                 Register your hostel account
               </a>
             </div>
