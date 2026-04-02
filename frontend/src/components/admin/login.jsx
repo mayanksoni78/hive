@@ -4,10 +4,20 @@ import { useNavigate } from 'react-router-dom';
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [adminType, setAdminType] = useState('Mess'); // 'Mess' or 'Transport'
-
-  const handleLogin = (e) => {
+  const [email,setEmail] =useState()
+  const [password,setPassword]=useState()
+  const handleLogin =async (e) => {
     e.preventDefault();
     console.log(`Authenticating ${adminType} Admin...`);
+
+    try{
+      const response = await fetch("http://localhost:3000/admin/login",{
+        method:"POST",
+        body:JSON.stringify({email:email,password:password}),
+      })
+    }catch(e){
+
+    }
     // Add your admin login logic here
   };
 
@@ -85,6 +95,7 @@ const AdminLogin = () => {
                 <input 
                   type="email" 
                   required
+                  onChange={(e)=>setEmail(e.value)}
                   placeholder={`admin@${adminType.toLowerCase()}.hive.edu`}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-medium placeholder:text-slate-300"
                 />
@@ -98,6 +109,7 @@ const AdminLogin = () => {
                 <input 
                   type="password" 
                   required
+                  onChange={(e)=>setPassword(e.value)}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-medium placeholder:text-slate-300"
                 />
