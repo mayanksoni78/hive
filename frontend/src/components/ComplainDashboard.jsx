@@ -10,18 +10,24 @@ const ComplainDashboard = () => {
   }, []);
 
   const fetchComplaints = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
+    try{
+       setLoading(true);
+        const { data, error } = await supabase
       .from("complaints")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching complaints:", error);
-    } else {
-      setComplaints(data);
+      throw error;
     }
-    setLoading(false);
+     setComplaints(data)
+    }
+    catch(error){
+    console.error("error fetching",error)
+   }
+   finally{
+    setLoading(false)
+   }
   };
 
   return (
@@ -62,7 +68,7 @@ const ComplainDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {/* ✅ Fixed: was using 'comp' but variable is 'c' */}
+                   
                     {complaints.map((c) => (
                       <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

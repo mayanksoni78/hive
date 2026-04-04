@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const MyComplaints = () => {
-  const student = JSON.parse(localStorage.getItem("student") || "{}");
-
+  const student = (localStorage.getItem("enroll_id, name") || "{}");
+  
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [updating, setUpdating]     = useState(null);

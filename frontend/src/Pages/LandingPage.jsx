@@ -101,7 +101,7 @@ const LandingPage = () => {
                 Partnership Opportunities
               </p>
               <button 
-                onClick={() => navigate('/hostel_registr')}
+                onClick={() => navigate('/hostel/signup')}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all active:scale-[0.98] w-full sm:w-auto"
               >
                 Register a New Hostel Agency
