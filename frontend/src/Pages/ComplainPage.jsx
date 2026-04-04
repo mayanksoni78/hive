@@ -9,23 +9,24 @@ const AddComplain = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [student, setStudent]=useState([]);
   const [complain, setComplain] = useState({
-    room_no: student.room_id || "",
+    room_no: "",
     description: "",
     complain_type: "",
   });
 
+  //fetchUser
   const fetchUser=async()=>{
     try{
-       const {data,err}=await supabase
+       const {data,error}=await supabase
        .from("student")
        .select("enroll_id,name,hostel_id")
        .eq("enroll_id", enrollId)
 
-       if(err)throw err;
+       if(error)throw error;
        setStudent(data[0])
     }
-    catch(err){
-      console.log(err,"Failed to gey user")
+    catch(error){
+      console.log(error,"Failed to get user")
     }
   }
   useEffect(()=>{

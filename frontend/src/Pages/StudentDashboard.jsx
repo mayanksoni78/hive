@@ -1,15 +1,35 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
+
 const API = "http://localhost:3000/api";
 
-const getStudent = () => {
-  try { return JSON.parse(localStorage.getItem("student")); }
-  catch { return null; }
+const enrollID = localStorage.getItem("enroll_id") || "{}";
+const [student, setStudent]=useState([]);
+
+//fetch student data
+const getStudent = async () => {
+  try { 
+    const {data,error}= await supabase
+    .from("students")
+    .select("*")
+    .eq("enroll_id", enrollID)
+    .single();
+    if(error) throw error;  
+    setStudent(data);
+  }
+  catch(error) {
+    console.error("Error fetching student data:", error);
+   }
 };
 
-// All student routes use enroll_id / hostel_id as params — no auth token needed
+useEffect(()=>{
+  getStudent();
+}, []);
+
+
 const apiFetch = {
   get: (url) =>
     fetch(url).then(r => r.json()),

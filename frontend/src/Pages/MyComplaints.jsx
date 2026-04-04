@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const MyComplaints = () => {
-  const student = (localStorage.getItem("enroll_id, name") || "{}");
+  const enrollID = (localStorage.getItem("enroll_id") || "{}");
   
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -18,7 +18,7 @@ const MyComplaints = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/complain/my_complains?enroll_id=${student.enroll_id}`
+        `http://localhost:3000/api/complain/my_complains?enroll_id=${enrollID}`
       );
       if (res.data.error) throw new Error(res.data.error);
       setComplaints(res.data.complains || []);
@@ -34,7 +34,7 @@ const MyComplaints = () => {
     try {
       const res = await axios.patch(
         `http://localhost:3000/api/complain/resolve/${complaint_id}`,
-        { enroll_id: student.enroll_id }
+        { enroll_id: enrollID}
       );
       if (res.data.error) throw new Error(res.data.error);
 
