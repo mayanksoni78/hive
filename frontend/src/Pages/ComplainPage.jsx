@@ -1,18 +1,36 @@
 import { supabase } from "../lib/supabase";
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import axios from "axios";
 
 const AddComplain = () => {
-  const student = JSON.parse(localStorage.getItem("student") || "{}");
-
+  const enrollId =(localStorage.getItem("enroll_id") || "{}");
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [student, setStudent]=useState([]);
   const [complain, setComplain] = useState({
     room_no: student.room_id || "",
     description: "",
     complain_type: "",
   });
+
+  const fetchUser=async()=>{
+    try{
+       const {data,err}=await supabase
+       .from("student")
+       .select("enroll_id,name,hostel_id")
+       .eq("enroll_id", enrollId)
+
+       if(err)throw err;
+       setStudent(data[0])
+    }
+    catch(err){
+      console.log(err,"Failed to gey user")
+    }
+  }
+  useEffect(()=>{
+    fetchUser();
+  },[])
 
   const handleChange = (e) => {
     setComplain({ ...complain, [e.target.name]: e.target.value });
@@ -24,7 +42,7 @@ const AddComplain = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Upload image if provided — non-blocking
+    // Upload image if provided — non-blocking
       let imageUrl = "";
       if (image) {
         try {
@@ -39,30 +57,33 @@ const AddComplain = () => {
               .from("complain-images")
               .getPublicUrl(filePath);
             imageUrl = data.publicUrl;
+            // console.log(data);
           }
         } catch (imgErr) {
           console.warn("Image error, continuing:", imgErr.message);
         }
       }
 
+      //store data 
       const response = await axios.post(
         "http://localhost:3000/api/complain/complain_page",
         {
           enroll_id: student.enroll_id,
-          hostel_id: student.hostel_id,   // required by DB
+          hostel_id: student.hostel_id, 
           room_no: complain.room_no,
           description: complain.description,
           complain_type: complain.complain_type,
           image_url: imageUrl,
         }
       );
-
+       localStorage.setItem("name",)
       if (response.data?.error) throw new Error(response.data.error);
 
       setMessage({ type: "success", text: "Complaint registered successfully." });
       setComplain({ room_no: student.room_id || "", description: "", complain_type: "" });
       setImage(null);
     } catch (error) {
+    console.log(error);
       setMessage({
         type: "error",
         text: error.message || "Failed to submit. Please try again.",

@@ -436,7 +436,6 @@ const NAV = [
   { id:"mycomplains", icon:"🗂️", label:"My Complaints", section:"Pages", path:"/my_complains" },
 ];
 
-// ─── APP SHELL ────────────────────────────────────────────────────────────────
 export default function StudentDashboard() {
   const navigate              = useNavigate();
   const [page, setPage]       = useState("dashboard");
