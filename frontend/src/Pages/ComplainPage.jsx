@@ -3,7 +3,8 @@ import React, { useState ,useEffect} from "react";
 import axios from "axios";
 
 const AddComplain = () => {
-  const enrollId =(localStorage.getItem("enroll_id") || "{}");
+  const enrollId =(localStorage.getItem("enroll_id"));
+  
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -58,7 +59,7 @@ const AddComplain = () => {
               .from("complain-images")
               .getPublicUrl(filePath);
             imageUrl = data.publicUrl;
-            // console.log(data);
+            //console.log(data);
           }
         } catch (imgErr) {
           console.warn("Image error, continuing:", imgErr.message);
@@ -77,7 +78,7 @@ const AddComplain = () => {
           image_url: imageUrl,
         }
       );
-       localStorage.setItem("name",)
+     
       if (response.data?.error) throw new Error(response.data.error);
 
       setMessage({ type: "success", text: "Complaint registered successfully." });

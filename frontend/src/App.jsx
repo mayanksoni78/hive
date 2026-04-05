@@ -7,7 +7,7 @@ import LoginHostel from "./components/hostel/login.jsx";
 import HostelRegistration from "./components/hostel/registration.jsx";
 import HostelDashboard from "./components/hostel/hostel.jsx";
 import ComplainPage from "./Pages/ComplainPage.jsx";
-import ComplainDashboard from "./components/ComplainDashboard.jsx"
+import ComplainDashboard from "./components/complain/ComplainDashboard.jsx"
 import MessMenuDisplay from "./components/mess/MessMenuDisplay.jsx"; 
 import MessMenuAdmin from './components/mess/MessMenuAdmin';
 import TransportSchedule from './Pages/Transport_Schedule.jsx'
