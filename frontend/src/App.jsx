@@ -18,11 +18,17 @@ import Mycomplaints from "./Pages/MyComplaints.jsx";
 import UpdateBus from "./components/tranaport/UpdateBus.jsx";
 import Landing from "./Pages/LandingPage.jsx"
 import Admin from "./components/admin/login.jsx"
+import SplashScreen from './Pages/SplashScreen';
+
 function App() {
   return (
     <Router>
       <Routes>
-        
+
+        {/* Splash → auto-navigates to /landing after animation */}
+        <Route path="/" element={<SplashScreen />} />
+        <Route path="/landing" element={<Landing />} />
+
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -34,14 +40,13 @@ function App() {
         <Route path="/complain_page" element={<ComplainPage/>}/>
         <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
-         <Route path="/add_transport" element={<AddTransport/>}/>
-         <Route path="/update_bus" element={<UpdateBus/>}/>
-         <Route path="/notices" element={<NoticePage />} />
-         <Route path="/student-dashboard" element={<StudentDashboard />} />
-         <Route path="/my_complains" element={<Mycomplaints />} />
-         <Route path="/admin/login" element={<Admin/>} />
+        <Route path="/add_transport" element={<AddTransport/>}/>
+        <Route path="/update_bus" element={<UpdateBus/>}/>
+        <Route path="/notices" element={<NoticePage />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/my_complains" element={<Mycomplaints />} />
+        <Route path="/admin/login" element={<Admin/>} />
 
-         <Route path="/" element={<Landing />} />
         {/* Protected route */}
         <Route
           path="/dashboard"
@@ -50,7 +55,8 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           }
-        />        
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>
