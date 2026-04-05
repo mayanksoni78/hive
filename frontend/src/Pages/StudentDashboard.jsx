@@ -7,7 +7,7 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
 
   const enrollID = localStorage.getItem("enroll_id");
-  // const [student, setStudent] = useState(null);
+  const [student, setStudent] = useState(null);
   const [page, setPage] = useState("dashboard");
 
   //fetch student data
@@ -25,13 +25,13 @@ export default function StudentDashboard() {
     }
   };
 
-//   useEffect(() => {
+   useEffect(() => {
     if (!enrollID) {
       navigate("/");
       return;
     }
-  //   getStudent();
-  // }, [enrollID]);
+     getStudent();
+   }, [enrollID]);
 
   const handleLogout = () => {
     localStorage.removeItem("enroll_id");
