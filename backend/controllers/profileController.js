@@ -26,7 +26,7 @@ export const getProfile = async (req, res) => {
 // Body: { enroll_id, phone, address }
 export const updateProfile = async (req, res) => {
   try {
-    const { enroll_id, phone, address } = req.body;
+    const { enroll_id, phone, address,password } = req.body;
 
     if (!enroll_id) return res.json({ error: 'enroll_id is required' });
 
@@ -34,6 +34,7 @@ export const updateProfile = async (req, res) => {
     const updates = {};
     if (phone   !== undefined) updates.phone   = phone;
     if (address !== undefined) updates.address = address;
+    if (password !== undefined) updates.password = password;
 
     if (Object.keys(updates).length === 0) {
       return res.json({ error: 'No valid fields to update' });
@@ -43,7 +44,7 @@ export const updateProfile = async (req, res) => {
       .from('student')
       .update(updates)
       .eq('enroll_id', enroll_id)
-      .select('enroll_id, name, email, phone, gender, year, address, hostel_id, room_id, status')
+      .select('enroll_id, name, email, phone, gender, year, address, hostel_id, room_id')
       .single();
 
     if (error) throw error;

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const MyComplaints = () => {
-  const student = (localStorage.getItem("enroll_id, name") || "{}");
+const MyComplaints = ({student}) => {
   
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -12,9 +11,10 @@ const MyComplaints = () => {
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [student]);
 
   const fetchComplaints = async () => {
+    if(!student?.enroll_id)return;
     setLoading(true);
     try {
       const res = await axios.get(
@@ -34,7 +34,7 @@ const MyComplaints = () => {
     try {
       const res = await axios.patch(
         `http://localhost:3000/api/complain/resolve/${complaint_id}`,
-        { enroll_id: student.enroll_id }
+        { enroll_id: student.enroll_id}
       );
       if (res.data.error) throw new Error(res.data.error);
 
@@ -114,7 +114,7 @@ const MyComplaints = () => {
             <div className="relative z-10 flex flex-col items-center justify-center">
               <h1 className="text-3xl font-black text-white tracking-tight">Complaint Records</h1>
               <p className="text-blue-400/80 text-[11px] mt-2 uppercase tracking-widest font-bold">
-                Viewing records for {student.name} • ID: {student.enroll_id}
+                Viewing records for {student?.name} • ID: {student?.enroll_id}
               </p>
             </div>
           </div>

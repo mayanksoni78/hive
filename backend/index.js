@@ -14,6 +14,7 @@ import adminRoute from "./routes/adminRoutes.js";
 import studentRoute from "./routes/student.js";
 const PORT = process.env.PORT || 3000;
 const app  = express();
+app.use(express.json());
 
 app.use(cors({
   origin: "http://localhost:5173",

@@ -2,9 +2,9 @@ import { supabase } from '../supabase.js';
 
 export const addBus = async (req, res) => {
   try {
-    const { hostel_id, transport_id, pickup, destination, date, day, start_time, end_time, student_count, batch, bus_count } = req.body;
-
-    if (!hostel_id || !transport_id || !pickup || !destination || !date || !start_time || !end_time || !day || !student_count || !batch || !bus_count) {
+    const { hostel_id, pickup, destination, date, day, start_time, end_time, student_count, batch, bus_count } = req.body;
+    // console.log("Body",res.body)
+    if (!hostel_id || !pickup || !destination || !date || !start_time || !end_time || !day || !student_count || !batch || !bus_count) {
       return res.json({ error: "Missing required Fields" });
     }
 
@@ -48,7 +48,7 @@ export const getTransportSchedule = async (req, res) => {
 export const updateBusSchedule =async (req,res)=>{
   try{
     const { hostel_id, transport_id, pickup, destination, date, day, start_time, end_time, student_count, batch, bus_count } = req.body;
-     if (!hostel_id || !transport_id || !pickup || !destination || !date || !start_time || !end_time || !day || !student_count || !batch || !bus_count) {
+     if (!hostel_id ||  !pickup || !destination || !date || !start_time || !end_time || !day || !student_count || !batch || !bus_count) {
       return res.json({ error: "Missing required Fields" });
     }
   const { data, error } = await supabase

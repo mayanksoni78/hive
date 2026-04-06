@@ -28,6 +28,7 @@ console.log(req.body)
       .from('complaints')
       .insert([{
         enroll_id,
+        hostel_id:     (hostel_id),
         hostel_id,
         name:          student.name,
         room_no,
