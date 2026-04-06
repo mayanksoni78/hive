@@ -31,14 +31,14 @@ function LoginHostel() {
         hostel_id: formData.email,
         password: formData.password
       };
-      // const res = await fetch("http://localhost:3000/api/hostel/login", {
-      //   method: "POST",
-      //   credentials: "include",
-      //   headers: {
-      //     "Content-Type": "application/json; charset=UTF-8"
-      //   },
-      //   body: JSON.stringify(data)
-      // });
+      const res = await fetch("http://localhost:3000/api/hostel/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify(data)
+      });
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitted(true);

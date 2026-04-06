@@ -10,15 +10,13 @@ export default function MessMenuDisplay() {
     useEffect(() => {
         loadMenu(selectedDate);
         
-        // Real-time subscription
+        
         const subscription = subscribeToMenuUpdates((payload) => {
             console.log('Menu updated:', payload);
             loadMenu(selectedDate);
         });
         
-        return () => {
-            subscription.unsubscribe();
-        };
+       
     }, [selectedDate]);
     
     async function loadMenu(date) {

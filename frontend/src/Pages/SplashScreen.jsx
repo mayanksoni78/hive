@@ -39,7 +39,7 @@ export default function SplashScreen() {
         const t2 = setTimeout(() => setPhase(2), 900);
         const t3 = setTimeout(() => setPhase(3), 1800);
         const t4 = setTimeout(() => setPhase(4), 3800);
-        const t5 = setTimeout(() => navigate('/landing'), 4500);
+        const t5 = setTimeout(() => navigate('/'), 4500);
         timersRef.current.push(t1, t2, t3, t4, t5);
     };
 

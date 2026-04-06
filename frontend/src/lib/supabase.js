@@ -4,13 +4,25 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-function getHostelId() {
-    const student = JSON.parse(localStorage.getItem('student'));
-    return student?.hostel_id || null;
-}
+async function getHostelId() {
+    try{
+    const enrollId= localStorage.getItem("enroll_id");
 
+   const {data,error}=await supabase
+                .from('student')
+                .select("hostel_id")
+                .eq('enroll_id', enrollId)
+                .single();
+
+     if(error)throw error;   
+     return data.hostel_id;                                
+}
+catch(error){
+ console.log("Error Fetching",error)
+}
+}
 export async function getMenuByDate(date = null) {
-    const HOSTEL_ID = getHostelId();
+    const HOSTEL_ID = await getHostelId();
     const targetDate = date || new Date().toISOString().split('T')[0];
     const { data, error } = await supabase
         .from('mess_menu')
@@ -27,7 +39,7 @@ export async function getMenuByDate(date = null) {
 }
 
 export async function getWeeklyMenu() {
-    const HOSTEL_ID = getHostelId();
+    const HOSTEL_ID = await getHostelId();
     const today = new Date();
     const weekLater = new Date();
     weekLater.setDate(today.getDate() + 7);
@@ -43,7 +55,7 @@ export async function getWeeklyMenu() {
 }
 
 export async function upsertMenu(menuData) {
-    const HOSTEL_ID = getHostelId();
+    const HOSTEL_ID = await getHostelId();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Authentication required');
 
@@ -84,7 +96,7 @@ export async function upsertMenu(menuData) {
 }
 
 export async function deleteMenu(date) {
-    const HOSTEL_ID = getHostelId();
+    const HOSTEL_ID = await getHostelId();
     const { error } = await supabase
         .from('mess_menu')
         .delete()
@@ -94,8 +106,8 @@ export async function deleteMenu(date) {
     return true;
 }
 
-export function subscribeToMenuUpdates(callback) {
-    const HOSTEL_ID = getHostelId();
+export async function subscribeToMenuUpdates(callback) {
+    const HOSTEL_ID = await getHostelId();
     const subscription = supabase
         .channel('mess_menu_changes')
         .on('postgres_changes', {
@@ -111,7 +123,7 @@ export function subscribeToMenuUpdates(callback) {
 }
 
 export async function getNotices() {
-    const HOSTEL_ID = getHostelId(); 
+    const HOSTEL_ID = await getHostelId(); 
     const { data, error } = await supabase
         .from('notice')
         .select('*')
@@ -123,8 +135,8 @@ export async function getNotices() {
     return data || [];
 }
 
-export function subscribeToNotices(callback) {
-    const HOSTEL_ID = getHostelId();
+export async function subscribeToNotices(callback) {
+    const HOSTEL_ID = await getHostelId();
     return supabase
         .channel('notice_changes')
         .on('postgres_changes', {
