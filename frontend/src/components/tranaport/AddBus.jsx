@@ -3,7 +3,6 @@ import axios from "axios";
 
 const AddBus = () => {
   const [busDetails, setBusDetails] = useState({
-    transport_id: "",
     hostel_id: "",
     pickup: "",
     destination: "",
@@ -14,18 +13,19 @@ const AddBus = () => {
     batch: "",
     date: "",
     day: "",
-
   });
-
+  const hostelId= localStorage.getItem("hostel_id")
+  
+ // console.log(hostelId)
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
- const getDayName = (dateString) => {
+  const getDayName = (dateString) => {
     if (!dateString) return "";
-  
+
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
-    
+
     return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(date);
   };
 
@@ -34,43 +34,57 @@ const AddBus = () => {
     if (name === "date") {
       setBusDetails({
         ...busDetails,
+        hostel_id:hostelId,
         date: value,
         day: getDayName(value),
       });
     } else {
       setBusDetails({
         ...busDetails,
+        hostel_id:hostelId,
         [name]: value,
       });
     }
   };
-
+  //console.log(busDetails)
   const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(busDetails.start_time>=busDetails.end_time){
+    if (busDetails.start_time >= busDetails.end_time) {
       setMessage({
-        type:"error",
-        text: "Validation Error — Leaving time must be later than the starting time." 
+        type: "error",
+        text: "Validation Error — Leaving time must be later than the starting time."
       });
       return;
     }
     setIsLoading(true);
     setMessage({ type: "", text: "" });
-
+    
     try {
       const response = await fetch(
         "http://localhost:3000/api/transport/add_bus",
         {
-          method: "POST", credentials: "include",
-          busDetails
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials:"include",
+          body: JSON.stringify(busDetails),
         }
       );
-      if (response.data) {
-        setMessage({ type: "success", text: "Bus schedule has been added successfully." });
+     
+      const result = await response.json()
+      console.log("Result",result)
+      if (response.ok) {
+        setMessage({
+          type: "success",
+          text: "Bus schedule has been added successfully."
+        });
+
         setBusDetails({
-          hostel_id: " ",
+          transport_id: "",
+          hostel_id: hostelId,
           pickup: "",
           destination: "",
           start_time: "",
@@ -80,8 +94,9 @@ const AddBus = () => {
           batch: "",
           date: "",
           day: "",
-
         });
+      } else {
+        throw new Error(result.message || "Failed");
       }
     } catch (error) {
       setMessage({
@@ -97,7 +112,7 @@ const AddBus = () => {
     "w-full px-3 py-2.5 text-sm text-gray-800 bg-white border border-gray-300 rounded focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-400 transition duration-150 placeholder-gray-400";
 
   const labelClass = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5";
-return (
+  return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-14 px-4">
       <div className="w-full max-w-2xl">
         <div className="mb-8">

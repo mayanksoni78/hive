@@ -9,7 +9,8 @@ import HostelDashboard from "./components/hostel/hostel.jsx";
 import ComplainPage from "./Pages/ComplainPage.jsx";
 import ComplainDashboard from "./components/complain/ComplainDashboard.jsx"
 import MessMenuDisplay from "./components/mess/MessMenuDisplay.jsx"; 
-import MessMenuAdmin from './components/mess/MessMenuAdmin';
+import MessMenuAdmin from './components/admin/MessMenuAdmin.jsx';
+import TransportAdmin from "./components/admin/TransportAdmin.jsx"
 import TransportSchedule from './Pages/Transport_Schedule.jsx'
 import AddTransport from './components/tranaport/AddBus.jsx'
 import NoticePage from './components/notice/NoticePage';
@@ -26,8 +27,8 @@ function App() {
       <Routes>
 
         {/* Splash → auto-navigates to /landing after animation */}
-        <Route path="/" element={<SplashScreen />} />
-        <Route path="/landing" element={<Landing />} />
+        <Route path="/start" element={<SplashScreen />} />
+        <Route path="/" element={<Landing />} />
 
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
@@ -37,7 +38,7 @@ function App() {
         <Route path='dashboard-hostel' element={<HostelDashboard/>}/>
         <Route path="/mess-menu" element={<MessMenuDisplay />} />
         <Route path="/admin/mess-menu" element={<MessMenuAdmin />} />
-        <Route path="/complain_page" element={<ComplainPage/>}/>
+        <Route path="/admin/transport" element={<TransportAdmin />} />
         <Route path="/complain_dashboard" element={<ComplainDashboard/>}/>
         <Route path="/transport_schedule" element={<TransportSchedule/>}/>
         <Route path="/add_transport" element={<AddTransport/>}/>
@@ -57,7 +58,7 @@ function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/start" />} />
 
       </Routes>
     </Router>
