@@ -11,6 +11,7 @@ import messRouter      from "./routes/messRoutes.js";
 import feeRouter       from "./routes/feeRoutes.js";
 import profileRouter   from "./routes/profileRoutes.js";
 import adminRoute from "./routes/adminRoutes.js";
+import studentRoute from "./routes/student.js";
 const PORT = process.env.PORT || 3000;
 const app  = express();
 
@@ -28,6 +29,7 @@ app.use("/api/mess",      messRouter);
 app.use("/api/fee",       feeRouter);
 app.use("/api/profile",   profileRouter);
 app.use("/api/admin", adminRoute);
+app.use("/api/student",studentRoute);
 app.get("/", (req, res) => res.send("HIVE Backend Running ✅"));
 
 app.listen(PORT, () => console.log(`✅ Server started on port ${PORT}`));
