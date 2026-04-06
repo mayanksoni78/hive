@@ -333,20 +333,44 @@ function FeePage({ student }) {
 // ─── PAGE: PROFILE ────────────────────────────────────────────────────────────
 // GET /api/profile?enroll_id=101
 // PUT /api/profile  body: { enroll_id, phone, address }
+// ─── PAGE: PROFILE ────────────────────────────────────────────────────────────
 function ProfilePage({ student, setStudent }) {
-  const [form, setForm]       = useState({ phone:student?.phone || "", address:student?.address || "" });
+  const [form, setForm]       = useState({ 
+    phone:   student?.phone   || "", 
+    address: student?.address || "",
+    password: "",
+    confirmPassword: "",
+  });
   const [editing, setEditing] = useState(false);
   const [status, setStatus]   = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const handleSave = async () => {
+    // Validate password if user typed one
+    if (form.password) {
+      if (form.password.length < 6) {
+        setStatus({ type:"error", msg:"Password must be at least 6 characters." });
+        return;
+      }
+      if (form.password !== form.confirmPassword) {
+        setStatus({ type:"error", msg:"Passwords do not match." });
+        return;
+      }
+    }
+
     setLoading(true);
-    const r = await apiFetch.put(`${API}/profile`, {
+    const body = {
       enroll_id: student.enroll_id,
       phone:     form.phone,
       address:   form.address,
-    });
+    };
+    // Only send password if the user actually filled it in
+    if (form.password) body.password = form.password;
+
+    const r = await apiFetch.put(`${API}/profile`, body);
     setLoading(false);
+
     if (r.error) {
       setStatus({ type:"error", msg:r.error });
     } else {
@@ -354,19 +378,31 @@ function ProfilePage({ student, setStudent }) {
       localStorage.setItem("student", JSON.stringify(updated));
       setStudent(updated);
       setEditing(false);
+      setForm(prev => ({ ...prev, password: "", confirmPassword: "" }));
       setStatus({ type:"success", msg:"Profile updated successfully!" });
     }
   };
 
+  const handleCancel = () => {
+    setEditing(false);
+    setStatus(null);
+    setForm({ 
+      phone:           student?.phone   || "", 
+      address:         student?.address || "",
+      password:        "",
+      confirmPassword: "",
+    });
+  };
+
   const readOnly = [
     ["Enrollment ID", student.enroll_id],
-    ["Name",   student.name],
-    ["Email",  student.email],
-    ["Gender", genderLabel(student.gender)],
-    ["Year",   student.year ? `Year ${student.year}` : "—"],
-    ["Room",   student.room_id   || "—"],
-    ["Hostel", student.hostel_id || "—"],
-    ["Status", null, <Badge key="st" status={student.status || "active"} />],
+    ["Name",          student.name],
+    ["Email",         student.email],
+    ["Gender",        genderLabel(student.gender)],
+    ["Year",          student.year ? `Year ${student.year}` : "—"],
+    ["Room",          student.room_id   || "—"],
+    ["Hostel",        student.hostel_id || "—"],
+    ["Status",        null, <Badge key="st" status={student.status || "active"} />],
   ];
 
   return (
@@ -379,8 +415,10 @@ function ProfilePage({ student, setStudent }) {
         {!editing
           ? <button className="btn btn-ghost" onClick={() => setEditing(true)}>✏️ Edit Profile</button>
           : <div style={{ display:"flex", gap:10 }}>
-              <button className="btn btn-ghost" onClick={() => { setEditing(false); setStatus(null); }}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={loading}>{loading ? "Saving…" : "Save"}</button>
+              <button className="btn btn-ghost"   onClick={handleCancel}>Cancel</button>
+              <button className="btn btn-primary"  onClick={handleSave} disabled={loading}>
+                {loading ? "Saving…" : "Save Changes"}
+              </button>
             </div>
         }
       </div>
@@ -388,13 +426,18 @@ function ProfilePage({ student, setStudent }) {
       {status && <div className={`alert ${status.type}`} style={{ maxWidth:680 }}>{status.msg}</div>}
 
       <div className="card" style={{ maxWidth:680, animation:"fadeUp 0.4s ease" }}>
+        {/* ── Avatar header ── */}
         <div className="profile-header">
           <div className="profile-avatar">{initials(student.name)}</div>
           <div>
             <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:20 }}>{student.name}</div>
-            <div style={{ fontSize:13, color:"var(--ink-3)", marginTop:2 }}>{student.email} · {student.enroll_id}</div>
+            <div style={{ fontSize:13, color:"var(--ink-3)", marginTop:2 }}>
+              {student.email} · {student.enroll_id}
+            </div>
           </div>
         </div>
+
+        {/* ── Read-only fields ── */}
         <div className="profile-grid">
           {readOnly.map(([label, value, node]) => (
             <div className="profile-field" key={label}>
@@ -402,22 +445,124 @@ function ProfilePage({ student, setStudent }) {
               <div className="profile-field-value">{node || value || "—"}</div>
             </div>
           ))}
+
+          {/* Phone — editable */}
           <div className="profile-field">
             <div className="profile-field-label">Phone</div>
             {editing
               ? <input className="form-input" style={{ marginTop:5 }} value={form.phone}
-                  onChange={e => setForm({ ...form, phone:e.target.value })} placeholder="+91 XXXXX XXXXX" />
-              : <div className="profile-field-value">{student.phone || <span style={{ color:"var(--ink-3)" }}>Not set</span>}</div>
+                  onChange={e => setForm({ ...form, phone:e.target.value })}
+                  placeholder="+91 XXXXX XXXXX" />
+              : <div className="profile-field-value">
+                  {student.phone || <span style={{ color:"var(--ink-3)" }}>Not set</span>}
+                </div>
             }
           </div>
+
+          {/* Address — editable, full width */}
           <div className="profile-field" style={{ gridColumn:"1/-1" }}>
             <div className="profile-field-label">Address</div>
             {editing
               ? <textarea className="form-input" style={{ marginTop:5, minHeight:70 }} value={form.address}
-                  onChange={e => setForm({ ...form, address:e.target.value })} placeholder="Your home address" />
-              : <div className="profile-field-value">{student.address || <span style={{ color:"var(--ink-3)" }}>Not set</span>}</div>
+                  onChange={e => setForm({ ...form, address:e.target.value })}
+                  placeholder="Your home address" />
+              : <div className="profile-field-value">
+                  {student.address || <span style={{ color:"var(--ink-3)" }}>Not set</span>}
+                </div>
             }
           </div>
+
+          {/* ── Password section — only shown while editing ── */}
+          {editing && (
+            <div className="profile-field" style={{ gridColumn:"1/-1", background:"var(--surface-2)", borderRadius:"0 0 var(--radius) var(--radius)" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                <div className="profile-field-label" style={{ margin:0 }}>Change Password</div>
+                <span style={{ fontSize:11, color:"var(--ink-3)" }}>Leave blank to keep current password</span>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                <div>
+                  <label className="form-label">New Password</label>
+                  <div style={{ position:"relative" }}>
+                    <input
+                      className="form-input"
+                      type={showPass ? "text" : "password"}
+                      value={form.password}
+                      onChange={e => setForm({ ...form, password:e.target.value })}
+                      placeholder="Min. 6 characters"
+                      style={{ paddingRight:40 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(v => !v)}
+                      style={{
+                        position:"absolute", right:10, top:"50%", transform:"translateY(-50%)",
+                        background:"none", border:"none", cursor:"pointer",
+                        fontSize:15, color:"var(--ink-3)", padding:0,
+                      }}
+                      title={showPass ? "Hide" : "Show"}
+                    >
+                      {showPass ? "🙈" : "👁️"}
+                    </button>
+                  </div>
+                  {/* Strength indicator */}
+                  {form.password && (
+                    <div style={{ marginTop:6, display:"flex", gap:4, alignItems:"center" }}>
+                      {["weak","fair","strong"].map((lvl, i) => {
+                        const len = form.password.length;
+                        const score = len < 6 ? 0 : len < 10 ? 1 : 2;
+                        const colors = ["var(--red)","var(--amber)","var(--green)"];
+                        const active = i <= score;
+                        return (
+                          <div key={lvl} style={{
+                            height:3, flex:1, borderRadius:2,
+                            background: active ? colors[score] : "var(--border)",
+                            transition:"background 0.2s",
+                          }} />
+                        );
+                      })}
+                      <span style={{ fontSize:11, color:"var(--ink-3)", marginLeft:4, minWidth:32 }}>
+                        {form.password.length < 6 ? "weak" : form.password.length < 10 ? "fair" : "strong"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="form-label">Confirm Password</label>
+                  <div style={{ position:"relative" }}>
+                    <input
+                      className="form-input"
+                      type={showPass ? "text" : "password"}
+                      value={form.confirmPassword}
+                      onChange={e => setForm({ ...form, confirmPassword:e.target.value })}
+                      placeholder="Repeat new password"
+                      style={{
+                        paddingRight:30,
+                        borderColor: form.confirmPassword
+                          ? form.password === form.confirmPassword
+                            ? "var(--green)"
+                            : "var(--red)"
+                          : undefined,
+                      }}
+                    />
+                    {/* Match indicator */}
+                    {form.confirmPassword && (
+                      <span style={{
+                        position:"absolute", right:10, top:"50%", transform:"translateY(-50%)",
+                        fontSize:14,
+                      }}>
+                        {form.password === form.confirmPassword ? "✅" : "❌"}
+                      </span>
+                    )}
+                  </div>
+                  {form.confirmPassword && form.password !== form.confirmPassword && (
+                    <div style={{ fontSize:11, color:"var(--red)", marginTop:5 }}>
+                      Passwords do not match
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

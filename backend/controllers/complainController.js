@@ -34,7 +34,7 @@ export const createComplain = async (req, res) => {
       .from('complaints')
       .insert([{
         enroll_id,
-        hostel_id:     Number(hostel_id),
+        hostel_id:     (hostel_id),
         name:          student.name,
         room_no,
         description,

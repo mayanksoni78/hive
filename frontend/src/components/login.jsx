@@ -32,10 +32,10 @@ export default function Login() {
     }
 
     const row = rows[0];
-    console.log("DB email    →", JSON.stringify(row.email));
-    console.log("Input email →", JSON.stringify(email.trim().toLowerCase()));
-    console.log("DB pass     →", JSON.stringify(row.password));
-    console.log("Input pass  →", JSON.stringify(password));
+    // console.log("DB email    →", JSON.stringify(row.email));
+    // console.log("Input email →", JSON.stringify(email.trim().toLowerCase()));
+    // console.log("DB pass     →", JSON.stringify(row.password));
+    // console.log("Input pass  →", JSON.stringify(password));
 
     // STEP 2 — manual compare
     if (row.email !== email.trim().toLowerCase()) {
