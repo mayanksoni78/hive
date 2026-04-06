@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Building2, User, Phone, MapPin, CheckCircle2, ArrowRight, Lock } from 'lucide-react';
-import { HashRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -9,8 +9,8 @@ function RegistrationForm() {
     address: '',
     ownerName: '',
     ownerContact: '',
-    managerName: '',
-    managerContact: '',
+    managerName: '', // Kept for state consistency, though not in the form
+    managerContact: '', // Kept for state consistency, though not in the form
   });
   
   const navigate = useNavigate();
@@ -42,13 +42,13 @@ function RegistrationForm() {
     try {
         const res = await fetch("http://localhost:3000/api/hostel/signup", {
             method: "POST",
-            credentials:"include",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json; charset=UTF-8"
             },
             body: JSON.stringify(data)
         });
-        const data2= await res.json();
+        const data2 = await res.json();
         console.log(data2);
         
     } catch (error) {
@@ -59,121 +59,122 @@ function RegistrationForm() {
       setIsSubmitting(false);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 3000);
-      // Navigate to dashboard
       navigate("/dashboard-hostel");
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+      
+      {/* Main Form Card */}
+      <div className="w-full max-w-2xl relative mt-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(17,25,39,0.15)] overflow-hidden border border-slate-200 ring-1 ring-slate-100">
 
-        {/* Header Section */}
-        <div className="bg-slate-900 px-8 py-6 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-slate-800 rounded-full opacity-50 blur-xl"></div>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-indigo-400" />
-              Hostel Registration
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Register a new property in the system.
-            </p>
+          {/* ── Header: Deep Dark Blue background ── */}
+          <div className="bg-[#111927] p-10 text-center relative border-b border-[#2a374b]">
+            <div className="inline-block p-3 bg-white/5 backdrop-blur-md rounded-xl mb-4 border border-white/10">
+              <Building2 className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-black text-white tracking-tight">HIVE PLATFORM</h1>
+            <div className="h-1 w-12 bg-[#4f73b3] mx-auto mt-2 rounded-full" />
+            <p className="text-slate-300 text-xs mt-3 uppercase tracking-widest font-medium">New Facility Registration</p>
           </div>
-        </div>
 
-        {/* Form Section */}
-        <div className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ── Form Body ── */}
+          <div className="p-8 md:p-10">
+            <form onSubmit={handleSubmit} className="space-y-8">
 
-            {/* Section: Property Details */}
-            <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">
-                Property Details
-              </h2>
+              {/* Section: Property Details */}
+              <div className="space-y-5">
+                <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">
+                  Property Details
+                </h2>
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="col-span-2">
-                  <label htmlFor="hostelName" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    Hostel Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Building2 className="h-4 w-4" />
+                <div className="grid gap-6 md:grid-cols-2">
+                  
+                  {/* Hostel Name */}
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label htmlFor="hostelName" className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
+                      Hostel Name
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+                      <input
+                        type="text"
+                        id="hostelName"
+                        name="hostelName"
+                        required
+                        value={formData.hostelName}
+                        onChange={handleChange}
+                        placeholder="e.g. Sunrise Student Living"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium placeholder:text-slate-400"
+                      />
                     </div>
-                    <input
-                      type="text"
-                      id="hostelName"
-                      name="hostelName"
-                      required
-                      value={formData.hostelName}
-                      onChange={handleChange}
-                      placeholder="e.g. Sunrise Student Living"
-                      className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
-                    />
                   </div>
-                </div>
 
-                <div className="col-span-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="h-4 w-4" />
+                  {/* Password */}
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label htmlFor="password" className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
+                      Security Key (Password)
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter a secure password"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium placeholder:text-slate-400"
+                      />
                     </div>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Enter a secure password"
-                      className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
-                    />
                   </div>
-                </div>
 
-                <div className="col-span-2">
-                  <label htmlFor="address" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    Address
-                  </label>
-                  <div className="relative">
-                    <div className="absolute top-3 left-3 flex items-start pointer-events-none text-slate-400">
-                      <MapPin className="h-4 w-4" />
+                  {/* Address */}
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label htmlFor="address" className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
+                      Full Address
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
+                        <MapPin className="h-5 w-5" />
+                      </div>
+                      <textarea
+                        id="address"
+                        name="address"
+                        rows="3"
+                        required
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="Street address, City, Zip Code"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium placeholder:text-slate-400 resize-none min-h-[100px]"
+                      />
                     </div>
-                    <textarea
-                      id="address"
-                      name="address"
-                      rows="3"
-                      value={formData.address}
-                      onChange={handleChange}
-                      placeholder="Street address, City, Zip Code"
-                      className="flex min-h-[80px] w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 resize-none"
-                    />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Section: Personnel */}
-            <div className="space-y-4 pt-4">
-              <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">
-                Management Details
-              </h2>
+              {/* Section: Personnel */}
+              <div className="space-y-5">
+                <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">
+                  Management Details
+                </h2>
 
-              <div className="grid gap-6 md:grid-cols-1">
-
-                {/* Owner Info */}
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="ownerName" className="block text-sm font-medium text-slate-700 mb-1.5">
+                <div className="grid gap-6 md:grid-cols-2">
+                  {/* Owner Name */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="ownerName" className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
                       Owner Name
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <User className="h-4 w-4" />
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
+                        <User className="h-5 w-5" />
                       </div>
                       <input
                         type="text"
@@ -182,17 +183,20 @@ function RegistrationForm() {
                         required
                         value={formData.ownerName}
                         onChange={handleChange}
-                        className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                        placeholder="Full Name"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium placeholder:text-slate-400"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label htmlFor="ownerContact" className="block text-sm font-medium text-slate-700 mb-1.5">
-                      Owner's Number
+
+                  {/* Owner Contact */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="ownerContact" className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
+                      Owner Contact
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <Phone className="h-4 w-4" />
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
+                        <Phone className="h-5 w-5" />
                       </div>
                       <input
                         type="tel"
@@ -202,62 +206,79 @@ function RegistrationForm() {
                         value={formData.ownerContact}
                         onChange={handleChange}
                         placeholder="+91 98765 43210"
-                        className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium placeholder:text-slate-400"
                       />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Footer Actions */}
-            <div className="pt-6">
-              <button
-                type="submit"
-                disabled={isSubmitting || submitted}
-                className={`w-full flex items-center justify-center gap-2 h-11 rounded-md text-sm font-medium text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none
-                  ${submitted ? 'bg-green-600 hover:bg-green-700' : 'bg-slate-900 hover:bg-slate-800'}
-                `}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Registering...
-                  </span>
-                ) : submitted ? (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Registration Complete
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Register Hostel <ArrowRight className="h-4 w-4" />
-                  </span>
-                )}
-              </button>
-              <p className="text-xs text-center text-slate-500 mt-4">
-                By clicking register, you agree to our terms of service and data policy.
-              </p>
-               <div className="text-center">
-              <a href="/login/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
-                Already have account ?
-              </a>
+              {/* Submit Section */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || submitted}
+                  className={`w-full font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2
+                    ${submitted 
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30' 
+                      : 'bg-[#111927] hover:bg-[#1a2638] text-white shadow-[#111927]/30'
+                    }
+                  `}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      <span>Registering Property...</span>
+                    </>
+                  ) : submitted ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5" />
+                      <span>Registration Complete</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit Registration</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </>
+                  )}
+                </button>
+                
+                <p className="text-xs text-center text-slate-500 mt-6 font-medium">
+                  By clicking register, you agree to our terms of service and data policy.
+                </p>
+                
+                <div className="mt-4 pt-6 border-t border-slate-100 text-center">
+                  <p className="text-slate-500 text-sm">
+                    Already have an account?{" "}
+                    <a href="/hostel/login" className="text-[#111927] hover:underline font-bold">
+                      Login Here
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        {/* Footer info matching the standard */}
+        <div className="flex justify-between items-center px-4 mt-6">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">© 2026 HIVE CORE</p>
+            <div className="flex gap-4 items-center">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-slate-500 text-xs font-medium uppercase tracking-widest">System Secure</span>
             </div>
-            </div>
-          </form>
         </div>
       </div>
     </div>
   );
 }
 
-
 export default function App() {
   return (
-        <RegistrationForm />
-     
+    <RegistrationForm />
   );
 }

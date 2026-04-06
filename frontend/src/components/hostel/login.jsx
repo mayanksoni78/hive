@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 function LoginHostel() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -30,14 +31,14 @@ function LoginHostel() {
         hostel_id: formData.email,
         password: formData.password
       };
-      const res = await fetch("http://localhost:3000/api/hostel/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8"
-        },
-        body: JSON.stringify({ data })
-      })
+      // const res = await fetch("http://localhost:3000/api/hostel/login", {
+      //   method: "POST",
+      //   credentials: "include",
+      //   headers: {
+      //     "Content-Type": "application/json; charset=UTF-8"
+      //   },
+      //   body: JSON.stringify(data)
+      // });
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitted(true);
@@ -47,44 +48,62 @@ function LoginHostel() {
       }, 1500);
     } catch (e) {
       console.log("error:", e);
+      setIsSubmitting(false);
     }
-
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
-
-        {/* Header Section */}
-        <div className="bg-slate-900 px-8 py-8 text-white relative overflow-hidden text-center">
-          <div className="absolute top-0 left-0 -mt-4 -ml-4 w-24 h-24 bg-slate-800 rounded-full opacity-50 blur-xl"></div>
-          <div className="absolute bottom-0 right-0 -mb-4 -mr-4 w-32 h-32 bg-indigo-900 rounded-full opacity-30 blur-2xl"></div>
-
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="bg-white/10 p-3 rounded-full mb-4 backdrop-blur-sm">
-              <Building2 className="w-8 h-8 text-indigo-400" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Welcome Back
-            </h1>
-            <p className="text-slate-400 text-sm mt-2 max-w-xs mx-auto">
-              Sign in to manage your hostel property and view bookings.
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden font-sans">
+      
+      {/* ── AMBIENT BACKGROUND EFFECTS ── */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-slate-400/10 blur-[120px]"></div>
+        <div className="absolute inset-0 opacity-[0.02]" 
+             style={{ backgroundImage: `radial-gradient(#000000 1px, transparent 1px)`, backgroundSize: '24px 24px' }}>
         </div>
+      </div>
 
-        {/* Form Section */}
-        <div className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="w-full max-w-lg relative z-10 flex flex-col gap-6">
+        
+        {/* Main Card */}
+        <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(17,25,39,0.08)] overflow-hidden border border-slate-200">
+          
+          {/* ── Header ── */}
+          <div className="bg-[#111927] px-8 py-10 text-center relative border-b border-[#2a374b] overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `radial-gradient(#ffffff 1px, transparent 1px)`, backgroundSize: '16px 16px' }}></div>
+            
+            {/* Back Button */}
+            <button 
+              type="button"
+              onClick={() => navigate('/')}
+              className="absolute top-6 left-6 text-slate-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            </button>
 
-            <div className="space-y-4">
+            <div className="relative z-10 flex flex-col items-center justify-center">
+              <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4 text-white">
+                <Building2 className="w-7 h-7" />
+              </div>
+              <h1 className="text-3xl font-black text-white tracking-tight">Agency Portal</h1>
+              <p className="text-slate-300/80 text-[11px] mt-2 uppercase tracking-widest font-bold">
+                Hostel Management & Bookings
+              </p>
+            </div>
+          </div>
+
+          {/* ── Body Area (Form) ── */}
+          <div className="p-6 md:p-8 bg-slate-50/50">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Email Address
+                <label htmlFor="email" className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">
+                  Agency Email
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                     <Mail className="h-4 w-4" />
                   </div>
                   <input
@@ -95,23 +114,18 @@ function LoginHostel() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="admin@hostel.com"
-                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all text-slate-700 font-medium placeholder:text-slate-300 shadow-sm"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-                    Password
-                  </label>
-                  <a href="#" className="text-xs font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
-                    Forgot password?
-                  </a>
-                </div>
+                <label htmlFor="password" className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 ml-1">
+                  Security Key
+                </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                     <Lock className="h-4 w-4" />
                   </div>
                   <input
@@ -121,87 +135,91 @@ function LoginHostel() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent py-2 pl-10 pr-10 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                    placeholder="••••••••"
+                    className="w-full pl-11 pr-11 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all text-slate-700 font-medium placeholder:text-slate-300 shadow-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-800 transition-colors focus:outline-none"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
               {/* Remember Me */}
-              <div className="flex items-center">
+              <div className="flex items-center ml-1">
                 <input
                   id="rememberMe"
                   name="rememberMe"
                   type="checkbox"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 transition-colors"
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 transition-colors cursor-pointer"
                 />
-                <label htmlFor="rememberMe" className="ml-2 block text-sm text-slate-600 select-none">
-                  Remember me for 30 days
+                <label htmlFor="rememberMe" className="ml-2 block text-[11px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer select-none">
+                  Keep me connected
                 </label>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className="pt-2">
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting || submitted}
-                className={`w-full flex items-center justify-center gap-2 h-11 rounded-md text-sm font-medium text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none
-                  ${submitted ? 'bg-green-600 hover:bg-green-700' : 'bg-slate-900 hover:bg-slate-800'}
-                `}
+                className="w-full mt-2 px-6 py-4 text-[11px] uppercase tracking-widest font-bold text-white rounded-xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-70 disabled:pointer-events-none bg-[#111927] shadow-slate-900/10 hover:bg-[#1f2d44]"
               >
                 {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
-                  </span>
+                    Authenticating...
+                  </>
                 ) : submitted ? (
-                  <span className="flex items-center gap-2">
+                  <>
                     <CheckCircle2 className="h-4 w-4" />
-                    Success
-                  </span>
+                    Access Granted
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    Sign In <ArrowRight className="h-4 w-4" />
-                  </span>
+                  <>
+                    Authorize Agency Access
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </>
                 )}
               </button>
-            </div>
-
-            {/* Footer Link */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200" />
+              
+              {/* Footer Link */}
+              <div className="mt-6 pt-6 border-t border-slate-200 text-center">
+                <p className="text-xs text-slate-500 mb-2">Don't have an agency account?</p>
+                <button 
+                  type="button"
+                  onClick={() => navigate('/hostel_registr')}
+                  className="text-[11px] font-bold text-slate-950 hover:text-slate-700 uppercase tracking-widest transition-colors"
+                >
+                  Register New Hostel
+                </button>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">
-                  New to the platform?
-                </span>
-              </div>
-            </div>
 
-            <div className="text-center">
-              <a href="/signup/hostel" className="text-sm font-medium text-slate-900 hover:underline underline-offset-4">
-                Register your hostel account
-              </a>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
+
+        {/* Global Footer Branding */}
+        <div className="flex justify-between items-center px-4">
+          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+            © 2026 HIVE CORE SYSTEMS
+          </p>
+          <div className="flex gap-3 items-center">
+            <div className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-300 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white border border-slate-300"></span>
+            </div>
+            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Agency Node</span>
+          </div>
+        </div>
+
       </div>
     </div>
   );

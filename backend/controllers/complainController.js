@@ -1,14 +1,9 @@
-import { getSupabase } from '../config.js';
+import {supabase} from "../supabase.js"
 
-const supabase = getSupabase();
-
-// POST /api/complain/complain_page
-// Body: { enroll_id, hostel_id, room_no, description, complain_type, image_url }
 export const createComplain = async (req, res) => {
   try {
     const { enroll_id, hostel_id, room_no, description, complain_type, image_url } = req.body;
-
-    // Tell client exactly which field is missing for easier debugging
+console.log(req.body)
     const missing = [];
     if (!enroll_id)     missing.push('enroll_id');
     if (!hostel_id)     missing.push('hostel_id');
@@ -19,7 +14,6 @@ export const createComplain = async (req, res) => {
       return res.json({ error: `Missing required fields: ${missing.join(', ')}` });
     }
 
-    // Fetch student name from DB — don't trust client
     const { data: student, error: studentError } = await supabase
       .from('student')
       .select('name')
@@ -35,6 +29,7 @@ export const createComplain = async (req, res) => {
       .insert([{
         enroll_id,
         hostel_id:     (hostel_id),
+        hostel_id,
         name:          student.name,
         room_no,
         description,
@@ -54,7 +49,6 @@ export const createComplain = async (req, res) => {
   }
 };
 
-// GET /api/complain/my_complains?enroll_id=101
 export const getComplains = async (req, res) => {
   try {
     const { enroll_id } = req.query;
@@ -65,7 +59,7 @@ export const getComplains = async (req, res) => {
       .from('complaints')
       .select('*')
       .eq('enroll_id', enroll_id)
-      .order('date', { ascending: false }); // ✅ uses 'date' not 'created_at'
+      .order('date', { ascending: false }); 
 
     if (error) throw error;
 
