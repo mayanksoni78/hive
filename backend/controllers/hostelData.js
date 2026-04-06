@@ -16,7 +16,7 @@ const hostelData = async (req, res) => {
       `)
       .eq("hostel_id", hostel_id)
       .single();
-        console.log(data)
+        // console.log(data)
     if (error) throw error;
 
     return res.json({ data });

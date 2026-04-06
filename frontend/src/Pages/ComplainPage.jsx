@@ -78,7 +78,7 @@ const AddComplain = () => {
           image_url: imageUrl,
         }
       );
-     
+      //  localStorage.setItem("name",)
       if (response.data?.error) throw new Error(response.data.error);
 
       setMessage({ type: "success", text: "Complaint registered successfully." });

@@ -17,10 +17,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data: rows, error: e1 } = await supabase
-        .from("student")
-        .select("*")
-        .eq("enroll_id", enrollId.trim());
+      const {data: authData, error: authError}=await supabase.auth.getUser({
+        email:email,
+        password:password,
+      })
+      console.log(authData)
+      // const { data: rows, error: e1 } = await supabase
+      //   .from("student")
+      //   .select("*")
+      //   .eq("enroll_id", enrollId.trim());
 
       if (!rows || rows.length === 0) {
         setLoading(false);

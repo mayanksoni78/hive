@@ -11,9 +11,11 @@ export function verifyToken(req, res, next) {
   try {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    if("hostel"!=decoded.role)return res.json({msg:"Unauthorized"}).status(401)
     console.log(decoded)
     req.user = decoded.email;
-    console.log("decoded : ", decoded)
+    // console.log("decoded : ", decoded)
     next();
 
   } catch (error) {
