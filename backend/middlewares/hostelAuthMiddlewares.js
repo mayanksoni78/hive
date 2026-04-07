@@ -11,7 +11,7 @@ export function verifyToken(req, res, next) {
   try {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+    console.log(decoded);
     if("hostel"!=decoded.role)return res.json({msg:"Unauthorized"}).status(401)
     console.log(decoded)
     req.user = decoded.email;

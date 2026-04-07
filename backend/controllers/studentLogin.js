@@ -28,7 +28,7 @@ export async function studentLogin(req,res){
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        return res.json({msg:"login success"}).status(200);
+        return res.json(data).status(200);
     }catch(e){
         console.log(e)
         return res.json({msg:"something went wrong from controller"}).status(500);
