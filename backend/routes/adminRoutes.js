@@ -1,12 +1,10 @@
-import { Router } from "express";
-import { adminLogin } from "../controllers/loginAdmin.js";
-import { adminSignup } from "../controllers/signupAdmin.js";
+import express from 'express';
+import { adminLogin, createAdmin, getAdmins } from '../controllers/adminController.js';
 
+const adminRouter = express.Router();
 
-const adminRoute = Router();
+adminRouter.post('/login',  adminLogin);   // Mess/Transport admin login
+adminRouter.post('/create', createAdmin);  // Hostel owner creates a new admin
+adminRouter.get('/list',    getAdmins);    // Get all admins for a hostel
 
-adminRoute.post("/login",adminLogin);
-adminRoute.post("/signup",adminSignup);
-
-
-export default adminRoute;
+export default adminRouter;
