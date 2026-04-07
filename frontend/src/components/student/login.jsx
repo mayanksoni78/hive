@@ -17,47 +17,13 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const {data: authData, error: authError}=await supabase.auth.getUser({
-        email:email,
-        password:password,
+      const data =await fetch("http://localhost:3000/api/student/login",{
+        method:'POST',
+        credentials:"include",
+        body:JSON.stringify({enroll_id:enrollId,email,password})
       })
-      console.log(authData)
-      // const { data: rows, error: e1 } = await supabase
-      //   .from("student")
-      //   .select("*")
-      //   .eq("enroll_id", enrollId.trim());
-
-      if (!rows || rows.length === 0) {
-        setLoading(false);
-        setError(`No student found with ID "${enrollId.trim()}"`);
-        return;
-      }
-
-      const row = rows[0];
-      if (row.email !== email.trim().toLowerCase()) {
-        setLoading(false);
-        setError("Email doesn't match.");
-        return;
-      }
-      if (row.password !== password) {
-        setLoading(false);
-        setError("Password doesn't match.");
-        return;
-      }
-
-      const { data, error: dbError } = await supabase
-        .from("student")
-        .select("*")
-        .eq("enroll_id", enrollId.trim())
-        .single();
-
-      setLoading(false);
-      if (dbError || !data) { setError("Fetch error: " + dbError?.message); return; }
-      
-
-      //console.log(data)
-      console.log("enroll_id", data.enroll_id)
-      localStorage.setItem("enroll_id", data.enroll_id);
+      // const data1=await data.json();
+      localStorage.setItem("enroll_id", enrollId);
       navigate("/student-dashboard");
 
     } catch (err) {
