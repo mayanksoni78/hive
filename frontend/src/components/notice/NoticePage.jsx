@@ -12,19 +12,11 @@ export default function NoticePage() {
         resolveHostelId();
     }, []);
 
-    useEffect(() => {
-        if (!hostelId) return;
-
-        loadNotices(hostelId);
-        const subscription = subscribeToNotices(hostelId, () => {
-            loadNotices(hostelId);
-        });
-        return () => subscription.unsubscribe();
-    }, [hostelId]);
 
     async function resolveHostelId() {
         try {
             const enrollId = localStorage.getItem('enroll_id');
+            //console.log(enrollId)
             if (!enrollId) { setHostelError(true); setLoading(false); return; }
 
             const { data, error } = await supabase
@@ -33,15 +25,29 @@ export default function NoticePage() {
                 .eq('enroll_id', enrollId)
                 .single();
 
-            if (error || !data?.hostel_id) { setHostelError(true); setLoading(false); return; }
-
+            if (error) { setHostelError(true); setLoading(false); return; }
+            
+           // console.log("hostelId",data.hostel_id)
             setHostelId(data.hostel_id);
+
         } catch (err) {
             console.error('Error resolving hostel ID:', err);
             setHostelError(true);
             setLoading(false);
         }
     }
+    
+    useEffect(() => {
+        console.log("Hostel Id Changed",hostelId) ;
+        if (!hostelId){
+          return;
+        } 
+        loadNotices(hostelId);
+        const subscription = subscribeToNotices(hostelId, () => {
+            loadNotices(hostelId);
+        });
+        return () => subscription.unsubscribe();
+    }, [hostelId]);
 
     async function loadNotices(id) {
         try {

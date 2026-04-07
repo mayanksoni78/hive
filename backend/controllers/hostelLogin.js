@@ -17,8 +17,8 @@ export async function hostelLogin(req, res) {
         console.log(isCorrectPassword);
         if (!isCorrectPassword) return res.json({ msg: "Wrong password" });
         //console.log(user);
-        const token = generateToken(data.hostel_id)
-        console.log(token);
+        const token = generateToken(data.hostel_id,"hostel")
+        // console.log(token);
         res.cookie("token", token, {
             httpOnly: true,
             secure: false,

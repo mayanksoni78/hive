@@ -6,7 +6,7 @@ export async function addStudent(req, res) {
     const hostel_id = req.user
     // console.log(hostel_id);
     console.log(data1)
-    const hashedPassword = await bcrypt.hash(`${data1.roll}`, 10);
+    const hashedPassword = await bcrypt.hash(`${data1.enroll_id}`, 10);
     // console.log(hashedPassword)
     try {
         const { data, error } = await supabase.from("student").insert([
@@ -18,12 +18,12 @@ export async function addStudent(req, res) {
                 phone: data1.phone,
                 gender: data1.gender,
                 year: data1.year,
-                room_id: parseInt(data1.room_id) ,
+                room_id: parseInt(data1.room_id),
                 hostel_id: hostel_id
             },
         ]).select("*")
-        // console.log(user.data1)
-        console.log(data);
+        
+        
         if (error) return res.json({ msg: "Error in database", error: error });
         return res.json({ msg: "student added successfully" });
     } catch (e) {

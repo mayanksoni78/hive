@@ -38,7 +38,7 @@ export async function hostelSignup(req, res) {
         }
 
         // console.log(data)
-        const token = generateToken(domain);
+        const token = generateToken(domain,"hostel");
         // console.log(token)
         
         res.cookie("token", token, {

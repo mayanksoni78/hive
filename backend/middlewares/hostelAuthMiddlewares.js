@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 
 export function verifyToken(req, res, next) {
-  console.log(req.cookies);
+  // console.log(req.cookies);
   const token = req.cookies?.token;
-  console.log("token :",token)
+  // console.log("token :",token)
   if (!token) {
     return res.json({ msg: "Unauthorized: No token" });
   }
@@ -11,8 +11,11 @@ export function verifyToken(req, res, next) {
   try {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    if("hostel"!=decoded.role)return res.json({msg:"Unauthorized"}).status(401)
+    console.log(decoded)
     req.user = decoded.email;
-    console.log("decoded : ", decoded)
+    // console.log("decoded : ", decoded)
     next();
 
   } catch (error) {
