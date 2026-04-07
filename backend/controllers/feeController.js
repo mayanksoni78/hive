@@ -289,19 +289,20 @@ export const downloadReceipt = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 export const getAllFees = async (req, res) => {
   try {
-    const { status } = req.query;
-    const hostel_id = req.hostel_id; // ✅ from token
-  
-console.log("Hostel ID from token:", hostel_id);
+    const { status, hostel_id } = req.query; // ✅ get from frontend
+
+    if (!hostel_id) {
+      return res.json({ error: "hostel_id required" });
+    }
+
     let query = supabase
       .from('fee')
       .select(`
         *,
         student ( name )
       `)
-      .eq('hostel_id', hostel_id) // ✅ FILTER HERE
+      .eq('hostel_id', hostel_id) // ✅ filter
       .order('due_date', { ascending: false });
-
 
     if (status) query = query.eq('status', status);
 
@@ -316,7 +317,6 @@ console.log("Hostel ID from token:", hostel_id);
     res.json({ fees });
 
   } catch (error) {
-    console.error('Get All Fees Error:', error);
     res.json({ error: error.message });
   }
 };

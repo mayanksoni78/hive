@@ -4,7 +4,7 @@ import axios from "axios";
 const API = "http://localhost:3000/api";
 
 // ─── FEE REQUEST PAGE ────────────────────────────────────────────────────────
-export function FeeRequestPage() {
+export   function FeeRequestPage() {
   const student = JSON.parse(localStorage.getItem("student") || "{}");
 
   const [form, setForm]       = useState({ fees_paid: "", due_date: "" });
@@ -319,3 +319,4 @@ export function FeeHistoryPage() {
     </div>
   );
 }
+export default FeeRequestPage;

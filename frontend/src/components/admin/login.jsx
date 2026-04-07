@@ -18,7 +18,11 @@ const AdminLogin = () => {
           "Content-Type": "application/json"
         },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+  email,
+  password,
+  department: adminType === "Mess" ? "Mess_Manager" : "Transport_Manager"
+})
       });
 
       const data = await response.json(); // ✅ FIXED

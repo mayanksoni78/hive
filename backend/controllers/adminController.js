@@ -5,10 +5,10 @@ import { supabase } from '../supabase.js';
 // Body: { email, password }
 // ─────────────────────────────────────────────────────────────────────────────
 export async function adminLogin(req, res) {
-  const { email, password } = req.body;
+  const { email, password, department } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ msg: "Email and password are required" });
+  if (!email || !password || !department) {
+    return res.status(400).json({ msg: "Email, password and department are required" });
   }
 
   try {
@@ -23,23 +23,28 @@ export async function adminLogin(req, res) {
     }
 
     if (!data.is_active) {
-      return res.status(403).json({ msg: "Your account has been deactivated. Contact the hostel admin." });
+      return res.status(403).json({ msg: "Account deactivated" });
     }
 
     if (password !== data.password) {
       return res.status(401).json({ msg: "Wrong password" });
     }
 
-    // Return admin data — frontend uses department to decide where to navigate
+    // 🔥 NEW CHECK
+    if (data.department !== department) {
+      return res.status(403).json({
+        msg: `Access denied. You are ${data.department}, not ${department}`
+      });
+    }
+
     return res.json({
       msg: "Login successful",
       data: {
-        admin_id:   data.admin_id,
-        name:       data.name,
-        email:      data.email,
-        department: data.department,   // "Mess_Manager" | "Transport_Manager" | "Hostel_Admin"
-        hostel_id:  data.hostel_id,
-        is_active:  data.is_active,
+        admin_id: data.admin_id,
+        name: data.name,
+        email: data.email,
+        department: data.department,
+        hostel_id: data.hostel_id,
       }
     });
 

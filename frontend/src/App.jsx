@@ -22,11 +22,12 @@ import Admin from "./components/admin/login.jsx"
 import SplashScreen from './Pages/SplashScreen';
 import { FeeRequestPage, FeeHistoryPage } from "./Pages/FeePages.jsx";
 import AdminFeePage from "./Pages/AdminFeePage.jsx";
+import AdminLogin from "./components/AdminLogin.jsx";
+
 function App() {
   return (
     <Router>
       <Routes>
-
         {/* Splash → auto-navigates to /landing after animation */}
         <Route path="/start" element={<SplashScreen />} />
         <Route path="/" element={<Landing />} />
@@ -48,13 +49,10 @@ function App() {
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/my_complains" element={<Mycomplaints />} />
         <Route path="/admin/login" element={<Admin/>} />
-        
-
-<Route path="/admin/fees" element={<AdminFeePage />} />
-
-        <Route path="/fee/pay"     element={<FeeRequestPage />} />
+        <Route path="/admin/fees" element={<AdminFeePage />} />
+        <Route path="/fee/pay" element={<FeeRequestPage />} />
         <Route path="/fee/history" element={<FeeHistoryPage />} />
-
+<Route path="/login/admin" element={<AdminLogin />} />
         {/* Protected route */}
         <Route
           path="/dashboard"
@@ -66,7 +64,6 @@ function App() {
         />
 
         <Route path="*" element={<Navigate to="/start" />} />
-
       </Routes>
     </Router>
   );
