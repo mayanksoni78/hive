@@ -16,7 +16,11 @@ export default function AdminFeePage() {
   const fetchAllFees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/fee/all`);
+      const hostel_id = localStorage.getItem("hostel_id");
+
+const res = await axios.get("http://localhost:3000/api/fee/fees", {
+  params: { hostel_id }   // ✅ send in query
+});
       if (res.data.error) throw new Error(res.data.error);
       setFees(res.data.fees || []);
     } catch (err) {

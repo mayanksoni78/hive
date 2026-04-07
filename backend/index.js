@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config(); // ← must be before everything else
+dotenv.config();
 
 import express from "express";
 import cors from "cors";
@@ -11,16 +11,15 @@ import messRouter      from "./routes/messRoutes.js";
 import feeRouter       from "./routes/feeRoutes.js";
 import profileRouter   from "./routes/profileRoutes.js";
 import adminRoute from "./routes/adminRoutes.js";
-import studentRoute from "./routes/student.js";
+
 const PORT = process.env.PORT || 3000;
 const app  = express();
-app.use(express.json());
 
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true,
 }));
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/complain",  complainrouter);
@@ -29,8 +28,12 @@ app.use("/api/transport", transportRouter);
 app.use("/api/mess",      messRouter);
 app.use("/api/fee",       feeRouter);
 app.use("/api/profile",   profileRouter);
-app.use("/api/admin", adminRoute);
-app.use("/api/student",studentRoute);
+app.use("/api/admin",     adminRoute);
+
 app.get("/", (req, res) => res.send("HIVE Backend Running ✅"));
 
-app.listen(PORT, () => console.log(`✅ Server started on port ${PORT}`));
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`✅ Server started on port ${PORT}`));
+}
+
+export default app;
