@@ -7,7 +7,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 async function getHostelId() {
     try{
     const enrollId= localStorage.getItem("enroll_id");
-
+    const hostelId = localStorage.getItem('hostel_id');
+    if (hostelId) return hostelId;
    const {data,error}=await supabase
                 .from('student')
                 .select("hostel_id")
@@ -55,46 +56,45 @@ export async function getWeeklyMenu() {
 }
 
 export async function upsertMenu(menuData) {
-    const HOSTEL_ID = await getHostelId();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Authentication required');
+  const HOSTEL_ID = await getHostelId(); // localStorage se
 
-    const formattedData = {
-        date: menuData.date,
-        hostel_id: HOSTEL_ID,
-        breakfast: {
-            items: menuData.breakfast?.items || [],
-            time: menuData.breakfast?.time || "7:30 AM - 9:00 AM"
-        },
-        lunch: {
-            items: menuData.lunch?.items || [],
-            time: menuData.lunch?.time || "12:30 PM - 2:00 PM"
-        },
-        snacks: {
-            items: menuData.snacks?.items || [],
-            time: menuData.snacks?.time || "4:30 PM - 5:30 PM"
-        },
-        dinner: {
-            items: menuData.dinner?.items || [],
-            time: menuData.dinner?.time || "7:30 PM - 9:30 PM"
-        },
-        special_note: menuData.special_note || null,
-        is_holiday: menuData.is_holiday || false,
-        updated_by: user.id
-    };
+  // ✅ auth check hatao — admin custom JWT se login karta hai
+  const formattedData = {
+    date: menuData.date,
+    hostel_id: HOSTEL_ID,
+    breakfast: {
+      items: menuData.breakfast?.items || [],
+      time: menuData.breakfast?.time || "7:30 AM - 9:00 AM"
+    },
+    lunch: {
+      items: menuData.lunch?.items || [],
+      time: menuData.lunch?.time || "12:30 PM - 2:00 PM"
+    },
+    snacks: {
+      items: menuData.snacks?.items || [],
+      time: menuData.snacks?.time || "4:30 PM - 5:30 PM"
+    },
+    dinner: {
+      items: menuData.dinner?.items || [],
+      time: menuData.dinner?.time || "7:30 PM - 9:30 PM"
+    },
+    special_note: menuData.special_note || null,
+    is_holiday: menuData.is_holiday || false,
+    // ✅ updated_by hatao ya admin localStorage se lo
+    updated_by: null
+  };
 
-    const { data, error } = await supabase
-        .from('mess_menu')
-        .upsert(formattedData, {
-            onConflict: 'hostel_id, date',
-            ignoreDuplicates: false
-        })
-        .select();
+  const { data, error } = await supabase
+    .from('mess_menu')
+    .upsert(formattedData, {
+      onConflict: 'hostel_id, date',
+      ignoreDuplicates: false
+    })
+    .select();
 
-    if (error) throw error;
-    return data[0];
+  if (error) throw error;
+  return data[0];
 }
-
 export async function deleteMenu(date) {
     const HOSTEL_ID = await getHostelId();
     const { error } = await supabase

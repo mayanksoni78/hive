@@ -13,7 +13,7 @@ function LoginHostel() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -32,29 +32,19 @@ function LoginHostel() {
         password: formData.password
       };
       const res = await fetch("http://localhost:3000/api/hostel/login", {
-  method: "POST",
-  credentials: "include", // ✅ required for cookies
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(data)
-});
-
-const result = await res.json();
-
-// ✅ store hostel_id in localStorage
-if (result.hostel_id) {
-  localStorage.setItem("hostel_id", result.hostel_id);
-}
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify(data)
+      });
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 3000);
         // Navigate to dashboard
         navigate("/dashboard-hostel");
-         
-    localStorage.setItem("hostel_id", data.hostel_id);
-  
       }, 1500);
     } catch (e) {
       console.log("error:", e);
