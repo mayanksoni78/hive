@@ -20,7 +20,8 @@ import UpdateBus from "./components/tranaport/UpdateBus.jsx";
 import Landing from "./Pages/LandingPage.jsx"
 import Admin from "./components/admin/login.jsx"
 import SplashScreen from './Pages/SplashScreen';
-
+import { FeeRequestPage, FeeHistoryPage } from "./Pages/FeePages.jsx";
+import AdminFeePage from "./Pages/AdminFeePage.jsx";
 function App() {
   return (
     <Router>
@@ -47,6 +48,12 @@ function App() {
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/my_complains" element={<Mycomplaints />} />
         <Route path="/admin/login" element={<Admin/>} />
+        
+
+<Route path="/admin/fees" element={<AdminFeePage />} />
+
+        <Route path="/fee/pay"     element={<FeeRequestPage />} />
+        <Route path="/fee/history" element={<FeeHistoryPage />} />
 
         {/* Protected route */}
         <Route

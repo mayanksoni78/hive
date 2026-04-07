@@ -605,4 +605,6 @@ const NAV = [
   { id: "complaint",   icon: "📋", label: "Complaints",         section: "Pages", path: "/complain_page" },
   { id: "notices",     icon: "🔔", label: "Notices",            section: "Pages", path: "/notices" },
   { id: "mycomplains", icon: "🗂️", label: "My Complaints",      section: "Pages" },
+  { id:"feepay",     icon:"💸", label:"Pay Fee",     section:"Pages", path:"/fee/pay"     },
+{ id:"feehistory", icon:"💳", label:"Fee History",  section:"Pages", path:"/fee/history" },
 ];

@@ -2,254 +2,160 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
-
 export default function TransportAdminDashboard() {
-    const navigate = useNavigate();
-    const [buses, setBuses] = useState([]);
-    const [date, setDate] = useState("");
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [buses, setBuses] = useState([]);
+  const [date, setDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    // fetch buses by date
-    const fetchBuses = async (selectedDate) => {
-        if (!selectedDate) return;
-       // console.log(selectedDate)
-        setLoading(true);
-        try {
-            const { data, error} = await supabase
-                .from("transport")
-                .select("*")
-                .eq("date",selectedDate)
-             
-            if (error) throw error;
-            setBuses(data);
-          
-            console.log("Buses",buses)
-        }
-        catch (error) {
-            console.log("Failed to Get Bus",error);
-        }
-        finally{
-            setLoading(false)
-        }
+  // 🔹 Fetch buses
+  const fetchBuses = async (selectedDate) => {
+    if (!selectedDate) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("transport")
+        .select("*")
+        .eq("date", selectedDate);
+
+      if (error) throw error;
+
+      setBuses(data || []);
+      console.log("Fetched buses:", data);
+    } catch (error) {
+      console.log("Failed to get buses:", error);
+    } finally {
+      setLoading(false);
     }
-        useEffect(() => {
-            if (date) fetchBuses(date);
-        }, [date]);
+  };
 
-        const handleEdit = (bus) => {
-            navigate("/admin/edit-bus", { state: { bus } });
-        };
+  useEffect(() => {
+    if (date) fetchBuses(date);
+  }, [date]);
+
+  const handleDelete = async (bus) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this bus?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("transport")
+        .delete()
+        .eq("transport_id", bus.transport_id);
+
+      if (error) throw error;
+
+      fetchBuses(date);
+    } catch (err) {
+      console.log("Delete failed:", err);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white py-10 px-4">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
-
-        {/* ── Page Header Card ── */}
-        <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(17,25,39,0.15)] overflow-hidden border border-slate-200 ring-1 ring-slate-100 mb-6">
-          <div className="bg-[#111927] p-8 relative border-b border-[#2a374b]">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shrink-0">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                    d="M8 17l4 4 4-4m-4-5v9M3 9l9-7 9 7M5 9v10a1 1 0 001 1h3m10-11l2 2M5 9l-2 2m14-2v10a1 1 0 01-1 1h-3M9 21h6" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-white tracking-tight">Transport Admin</h1>
-                <div className="h-1 w-10 bg-[#4f73b3] mt-2 rounded-full" />
-                <p className="text-slate-300 text-xs mt-2 uppercase tracking-widest font-medium">Manage buses &amp; schedules</p>
-              </div>
-            </div>
-            <div className="absolute top-6 right-6 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">Admin Panel</span>
-            </div>
+        {/* HEADER */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+          <div className="bg-gradient-to-r from-[#111927] to-gray-800 p-8 text-white">
+            <h1 className="text-3xl font-bold tracking-tight">Transport Admin</h1>
+            <p className="text-sm text-gray-300 mt-2">
+              Manage routes, buses, and daily schedules
+            </p>
           </div>
 
-          {/* Date + Add Bus row */}
-          <div className="p-6 flex flex-col sm:flex-row sm:items-end gap-5">
-            {/* Date Selector */}
-            <div className="flex-1 space-y-1.5">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">
-                Filter by Date <span className="text-red-400">*</span>
+          {/* DATE + ADD */}
+          <div className="p-6 flex flex-col sm:flex-row gap-4 items-center bg-white">
+            <div className="w-full sm:flex-1">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Select Schedule Date
               </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#111927] transition-colors">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#111927]/10 focus:border-[#111927] focus:bg-white transition-all outline-none text-slate-700 font-medium"
-                />
-              </div>
-              <p className="text-xs text-slate-400 font-medium ml-1">
-                Select a date to view and manage bus schedules for that day.
-              </p>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-[#111927] focus:border-[#111927] outline-none transition-all text-gray-700"
+              />
             </div>
 
-            {/* Add Bus Button */}
-            <div className="sm:w-48">
-              <button
-                onClick={() => navigate("/add_transport")}
-                className="w-full flex items-center justify-center gap-2 bg-[#111927] text-white font-bold py-3.5 px-5 rounded-xl hover:bg-[#1a2638] transition-all shadow-lg shadow-[#111927]/30 active:scale-[0.98] text-sm"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-                </svg>
-                Add Bus
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("/add_transport")}
+              className="w-full sm:w-auto mt-6 sm:mt-0 bg-[#111927] hover:bg-gray-800 text-white font-medium px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <span className="text-xl leading-none">+</span> Add Bus
+            </button>
           </div>
         </div>
 
-        {/* ── Bus List ── */}
+        {/* CONTENT */}
         {!date ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(17,25,39,0.08)] ring-1 ring-slate-100 overflow-hidden">
-            <div className="bg-[#111927] px-6 py-5 border-b border-[#2a374b] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg">🗓️</div>
-              <div>
-                <h3 className="font-black text-white text-sm tracking-tight">No Date Selected</h3>
-                <p className="text-slate-400 text-xs uppercase tracking-widest font-medium">Choose a date to load schedules</p>
-              </div>
-            </div>
-            <div className="p-8 text-center text-slate-400 text-sm font-medium">
-              Select a date above to view bus schedules.
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50">
+            <p className="text-lg font-medium text-gray-500">
+              Please select a date above to view schedules
+            </p>
           </div>
         ) : loading ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(17,25,39,0.08)] ring-1 ring-slate-100 overflow-hidden">
-            <div className="p-8 flex items-center justify-center gap-3 text-slate-500 text-sm font-medium">
-              <svg className="animate-spin h-5 w-5 text-[#111927]" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Loading schedules…
-            </div>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#111927]"></div>
           </div>
         ) : buses.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(17,25,39,0.08)] ring-1 ring-slate-100 overflow-hidden">
-            <div className="bg-[#111927] px-6 py-5 border-b border-[#2a374b] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg">🚌</div>
-              <div>
-                <h3 className="font-black text-white text-sm tracking-tight">No Buses Found</h3>
-                <p className="text-slate-400 text-xs uppercase tracking-widest font-medium">No schedules for this date</p>
-              </div>
-            </div>
-            <div className="p-8 text-center text-slate-400 text-sm font-medium">
-              No bus schedules exist for the selected date. Click <span className="font-bold text-slate-600">+ Add Bus</span> to create one.
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50">
+            <p className="text-lg font-medium text-gray-500">
+              No buses found for the selected date
+            </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Section Header */}
-            <div className="flex items-center justify-between px-1">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                {buses.length} route{buses.length !== 1 ? "s" : ""} found
-              </p>
-              <p className="text-xs text-slate-400 font-medium">{date}</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {buses.map((bus, idx) => {
-                const accent = ROUTE_ACCENTS[idx % ROUTE_ACCENTS.length];
-                return (
-                  <div
-                    key={bus.transport_id}
-                    className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(17,25,39,0.08)] overflow-hidden ring-1 ring-slate-100"
-                  >
-                    {/* Card Header */}
-                    <div className="bg-[#111927] px-5 py-4 flex items-center gap-3 border-b border-[#2a374b]">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg shrink-0">
-                        🚌
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-black text-white text-sm tracking-tight truncate">
-                          {bus.pickup} → {bus.destination}
-                        </h3>
-                        <p className="text-slate-400 text-xs uppercase tracking-widest font-medium">
-                          {bus.start_time} – {bus.end_time}
-                        </p>
-                      </div>
-                      <span className="text-xs font-bold px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300 shrink-0">
-                        Batch {bus.batch}
-                      </span>
-                    </div>
-
-                    {/* Accent bar */}
-                    <div style={{ height: 2, background: accent }} />
-
-                    {/* Body */}
-                    <div className="p-5 space-y-4">
-                      {/* Stats row */}
-                      <div className="grid grid-cols-3 gap-3">
-                        {[
-                          { label: "Pickup", value: bus.pickup, icon: "📍" },
-                          { label: "Students", value: bus.student_count, icon: "👥" },
-                          { label: "Buses", value: bus.bus_count, icon: "🚌" },
-                        ].map(({ label, value, icon }) => (
-                          <div key={label} className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-                            <div className="text-base mb-1">{icon}</div>
-                            <div className="text-slate-700 font-black text-sm">{value}</div>
-                            <div className="text-slate-400 text-xs font-medium uppercase tracking-wider">{label}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Time row */}
-                      <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                        <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-slate-600 text-sm font-semibold">
-                          {bus.start_time} – {bus.end_time}
-                        </span>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={() => handleEdit(bus)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#111927] text-white text-sm font-bold rounded-xl hover:bg-[#1a2638] transition-all active:scale-[0.98] shadow-md shadow-[#111927]/20"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(bus)}
-                          className="px-4 py-2.5 bg-white border border-red-200 text-red-500 font-bold rounded-xl hover:bg-red-50 hover:border-red-300 transition-all active:scale-[0.98] flex items-center gap-1.5 text-sm shadow-sm"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {buses.map((bus) => (
+              <div
+                key={bus.transport_id}
+                className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-extrabold text-xl text-gray-900 leading-tight">
+                      {bus.pickup} <span className="text-gray-400 mx-1">→</span> {bus.destination}
+                    </h3>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg text-sm text-gray-700 font-medium mb-5">
+                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {bus.start_time} – {bus.end_time}
+                  </div>
+
+                  {/* BADGES */}
+                  <div className="flex flex-wrap gap-2 text-sm mb-6">
+                    <span className="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded-full font-semibold">
+                     Student: {bus.student_count}
+                    </span>
+                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-full font-semibold">
+                      Buses: {bus.bus_count}
+                    </span>
+                    <span className="bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1 rounded-full font-semibold">
+                      Batch: {bus.batch}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 mt-auto">
+                  <button
+                    onClick={() => handleDelete(bus)}
+                    className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white py-2.5 rounded-xl font-medium transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete Bus
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
-
-        {/* Footer */}
-        <div className="flex justify-between items-center px-2 mt-8">
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">© 2026 HIVE CORE</p>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">System Secure</span>
-          </div>
-        </div>
       </div>
     </div>
   );
